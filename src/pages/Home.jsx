@@ -2,7 +2,6 @@ import { useState } from "react"
 import { SearchBar } from "../components/SearchBar"
 import "./Home.css"
 import { SearchResultsList } from "../components/SearchResultsList"
-import {SearchCard} from "../components/SearchCard"
 
 export default function Home() {
 
@@ -10,6 +9,9 @@ export default function Home() {
 
     
     return(
-        <div> <SearchCard/> </div>
+        <div className="search-bar-container"> 
+            <SearchBar setResults={setResults}/>
+            <SearchResultsList results={results}/>
+        </div>
     )
 }

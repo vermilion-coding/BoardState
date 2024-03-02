@@ -7,15 +7,15 @@ export const SearchBar = ({setResults}) => {
     const [input, setInput] = useState("")
 
     const fetchData = (value) => {
-        fetch("https://jsonplaceholder.typicode.com/users")
+        fetch(`https://api.scryfall.com/cards/search?q=name`)
         .then((response) => response.json())
         .then(json => {
-            const results = json.filter((user) => {
+            const results = json.filter((cards) => {
                 return (
                     value && 
-                    user && 
-                    user.name && 
-                    user.name.toLowerCase().includes(value)
+                    cards && 
+                    cards.name && 
+                    cards.name.toLowerCase().includes(value)
                 )
             })
             setResults(results)
