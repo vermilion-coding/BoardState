@@ -39,7 +39,7 @@ export default function Home() {
 
     return (
         <Container maxWidth="lg">
-            <Typography variant="h2" gutterBottom style={{ fontFamily: 'Roboto Mono, monospace', borderBottom: '2px solid #000', marginBottom: '20px' }}>Home</Typography>
+            <Typography variant="h2" gutterBottom style={{ fontFamily: 'Arial', borderBottom: '2px solid #000', marginBottom: '20px' }}>Home</Typography>
             
             {/* Trending Cards Section */}
             <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 4, border: '2px solid #000', marginBottom: '20px' }}>
