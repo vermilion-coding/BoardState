@@ -14,7 +14,7 @@ export default function Decks() {
 
     useEffect(() => {
         if (searchQuery.trim() !== '') {
-            axios.get(`https://api.scryfall.com/cards/search?q=${searchQuery}&limit=10`)
+            axios.get(`https://api.scryfall.com/cards/search?q=${searchQuery}&limit=10&order=name`)
                 .then(response => {
                     setSearchResults(response.data.data);
                 })
