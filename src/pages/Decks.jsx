@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
 
 export default function Decks() {
     const [selectedCards, setSelectedCards] = useState([]);
@@ -10,22 +10,17 @@ export default function Decks() {
     const [searchResults, setSearchResults] = useState([]);
     const [selectedCard, setSelectedCard] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
-    const [cardCounts, setCardCounts] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
+    const [deckCardCounts, setDeckCardCounts] = useState({});
 
     useEffect(() => {
         if (searchQuery.trim() !== '') {
-            setLoading(true);
             axios.get(`https://api.scryfall.com/cards/search?q=${searchQuery}&limit=10`)
                 .then(response => {
                     setSearchResults(response.data.data);
-                    setLoading(false);
                 })
                 .catch(error => {
                     console.error('Error fetching search results:', error);
                     setSearchResults([]);
-                    setLoading(false);
                 });
         } else {
             setSearchResults([]);
@@ -33,20 +28,54 @@ export default function Decks() {
     }, [searchQuery]);
 
     const addCardToSelected = (card) => {
-        const updatedCounts = { ...cardCounts };
-        updatedCounts[card.id] = (updatedCounts[card.id] || 0) + 1;
-        setCardCounts(updatedCounts);
+        if (!deckCardCounts[currentDeck.id]) {
+            setDeckCardCounts({
+                ...deckCardCounts,
+                [currentDeck.id]: { [card.id]: 1 }
+            });
+        } else if (!deckCardCounts[currentDeck.id][card.id]) {
+            setDeckCardCounts({
+                ...deckCardCounts,
+                [currentDeck.id]: {
+                    ...deckCardCounts[currentDeck.id],
+                    [card.id]: 1
+                }
+            });
+        } else {
+            setDeckCardCounts({
+                ...deckCardCounts,
+                [currentDeck.id]: {
+                    ...deckCardCounts[currentDeck.id],
+                    [card.id]: deckCardCounts[currentDeck.id][card.id] + 1
+                }
+            });
+        }
+
         if (!selectedCards.some(selectedCard => selectedCard.id === card.id)) {
-            setSelectedCards([...selectedCards, card]);
+            const newSelectedCards = [...selectedCards, card];
+            setSelectedCards(newSelectedCards);
+            saveDeck(currentDeck, newSelectedCards);
         }
     };
 
     const removeCardFromSelected = (cardId) => {
-        const updatedSelectedCards = selectedCards.filter(card => card.id !== cardId);
-        const updatedCounts = { ...cardCounts };
-        delete updatedCounts[cardId];
-        setCardCounts(updatedCounts);
-        setSelectedCards(updatedSelectedCards);
+        const updatedCounts = { ...deckCardCounts[currentDeck.id] };
+        if (updatedCounts[cardId] > 1) {
+            updatedCounts[cardId]--;
+            setDeckCardCounts({
+                ...deckCardCounts,
+                [currentDeck.id]: updatedCounts
+            });
+        } else {
+            delete updatedCounts[cardId];
+            setDeckCardCounts({
+                ...deckCardCounts,
+                [currentDeck.id]: updatedCounts
+            });
+            const updatedSelectedCards = selectedCards.filter(card => card.id !== cardId);
+            setSelectedCards(updatedSelectedCards);
+            saveDeck(currentDeck, updatedSelectedCards);
+        }
     };
 
     const createNewDeck = () => {
@@ -55,25 +84,42 @@ export default function Decks() {
             name: `Deck ${decks.length + 1}`,
             cards: [],
         };
-        setDecks([...decks, newDeck]);
+        const updatedDecks = [...decks, newDeck];
+        setDecks(updatedDecks);
+        setCurrentDeck(newDeck);
+        setSelectedCards([]);
     };
 
     const selectDeck = (deck) => {
         setCurrentDeck(deck);
         setSelectedCards(deck.cards);
-        setIsEditing(true);
     };
 
-    const saveDeck = () => {
-        if (currentDeck) {
+    const saveDeck = (deck, cards) => {
+        const updatedDecks = decks.map(d =>
+            d.id === deck.id ? { ...d, cards: cards } : d
+        );
+        setDecks(updatedDecks);
+    };
+
+    const deleteDeck = (deckId) => {
+        const updatedDecks = decks.filter(deck => deck.id !== deckId);
+        setDecks(updatedDecks);
+        setCurrentDeck(null);
+        setSelectedCards([]);
+    };
+
+    const renameDeck = (deckId) => {
+        const newName = prompt("Enter a new name for the deck:", decks.find(deck => deck.id === deckId).name);
+        if (newName !== null) {
             const updatedDecks = decks.map(deck =>
-                deck.id === currentDeck.id ? { ...deck, cards: selectedCards } : deck
+                deck.id === deckId ? { ...deck, name: newName } : deck
             );
             setDecks(updatedDecks);
         }
     };
 
-    const handleCardClick = (card) => {
+    const handleCardNameClick = (card) => {
         setSelectedCard(card);
         setOpenDialog(true);
     };
@@ -82,9 +128,16 @@ export default function Decks() {
         setOpenDialog(false);
     };
 
-    const handleSearchResultClick = (card) => {
-        setSelectedCard(card);
-        setOpenDialog(true);
+    const exportDeck = (deck) => {
+        const deckList = deck.cards.map(card => `${deckCardCounts[deck.id][card.id] || 1}x ${card.name}`).join('\n');
+        const blob = new Blob([deckList], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${deck.name}_Decklist.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
     };
 
     return (
@@ -94,15 +147,15 @@ export default function Decks() {
                     <Box border={1} borderRadius={4} p={2} style={{ height: '375px', maxHeight: '400px', overflowY: 'auto' }}>
                         <Typography variant="h4">Decks</Typography>
                         <Button variant="contained" onClick={createNewDeck}>New Deck</Button>
-                        <Box mt={2} style={{ display: 'flex', flexDirection: 'column', maxHeight: '200px', overflowY: 'auto' }}>
+                        <Box mt={2} style={{ display: 'flex', flexDirection: 'column', maxHeight: '240px', overflowY: 'auto' }}>
                             {decks.map(deck => (
-                                <div key={deck.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div key={deck.id} style={{ border: '1px solid black', borderRadius: '4px', padding: '8px', marginBottom: '8px' }}>
                                     <Typography variant="h6">{deck.name}</Typography>
                                     <div>
-                                        <Button variant="contained" onClick={() => selectDeck(deck)}>Edit</Button>
-                                        <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
-                                        <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
-                                        <Button variant="contained" onClick={() => exportDeck(deck)}>Export Deck</Button>
+                                        <Button variant="contained" onClick={() => selectDeck(deck)} style={{ width: '80px', height: '50px' }}>Edit</Button>
+                                        <Button variant="contained" onClick={() => deleteDeck(deck.id)} style={{ width: '80px', height: '50px' }}>Delete</Button>
+                                        <Button variant="contained" onClick={() => renameDeck(deck.id)} style={{ width: '80px', height: '50px' }}>Rename</Button>
+                                        <Button variant="contained" onClick={() => exportDeck(deck)} style={{ width: '80px', height: '50px' }}>Export</Button>
                                     </div>
                                 </div>
                             ))}
@@ -111,29 +164,14 @@ export default function Decks() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
-                        <Typography variant="h5">Selected Cards:</Typography>
+                        <Typography variant="h5">Current List</Typography>
                         <Box mt={1} style={{ height: '300px', maxHeight: '300px', overflowY: 'auto' }}>
                             {selectedCards.map((card, index) => (
-                                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }} onClick={() => handleCardClick(card)}>
-                                    <Typography style={{ width: '80px' }}>{cardCounts[card.id] || 0}</Typography>
-                                    <Typography>{card.name}</Typography>
-                                    <Button variant="contained" size="small" style={{ width: '80px' }} onClick={() => {
-                                        const updatedCounts = { ...cardCounts };
-                                        updatedCounts[card.id] = (updatedCounts[card.id] || 0) + 1;
-                                        setCardCounts(updatedCounts);
-                                        saveDeck(currentDeck, selectedCards);
-                                    }}>+</Button>
-                                    <Button variant="contained" size="small" style={{ width: '80px' }} onClick={() => {
-                                        const updatedCounts = { ...cardCounts };
-                                        if (updatedCounts[card.id] > 0) {
-                                            updatedCounts[card.id]--;
-                                            setCardCounts(updatedCounts);
-                                            if (updatedCounts[card.id] === 0) {
-                                                removeCardFromSelected(card.id);
-                                            }
-                                        }
-                                        saveDeck(currentDeck, selectedCards);
-                                    }}>-</Button>
+                                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+                                    <Typography style={{ width: '80px' }}>{deckCardCounts[currentDeck.id][card.id] || 0}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)}>{card.name}</Typography>
+                                    <Button variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '80px', height: '50px' }}>+</Button>
+                                    <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)} style={{ width: '80px', height: '50px' }}>-</Button>
                                 </div>
                             ))}
                         </Box>
@@ -141,9 +179,6 @@ export default function Decks() {
                 </Grid>
             </Grid>
             <Box border={1} borderRadius={4} p={2} mt={3}>
-                {isEditing && (
-                    <Typography variant="h4">Edit Deck: {currentDeck ? currentDeck.name : ''}</Typography>
-                )}
                 <TextField
                     type="text"
                     placeholder="Search for cards..."
@@ -154,28 +189,32 @@ export default function Decks() {
                 />
                 <Box mt={2} style={{ maxHeight: '300px', overflowY: 'auto' }}>
                     <Typography variant="h5">Search Results:</Typography>
-                    {loading ? (
-                        <Typography>Loading...</Typography>
-                    ) : (
-                        searchResults.map(card => (
-                            <div key={card.id} style={{ display: 'flex', alignItems: 'center' }}>
-                                <Typography onClick={() => handleSearchResultClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
-                                <Button variant="contained" size="small" style={{ width: '80px' }} onClick={() => addCardToSelected(card)}>Add</Button>
-                            </div>
-                        ))
-                    )}
+                    {searchResults.map(card => (
+                        <div key={card.id} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+                            <Typography onClick={() => handleCardNameClick(card)}>{card.name}</Typography>
+                            <Button maxWidth='80px' variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '160px', height: '50px' }}>Add</Button>
+                        </div>
+                    ))}
                 </Box>
             </Box>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogContent style={{ display: 'flex' }}>
-                    {selectedCard && selectedCard.card_faces ? (
-                        selectedCard.card_faces.map((face, index) => (
-                            <div key={index} style={{ marginRight: '10px' }}>
-                                <img src={face.image_uris?.png} alt={face.name} style={{ maxWidth: '100%' }} />
-                            </div>
-                        ))
+                <DialogContent>
+                    {selectedCard?.card_faces && selectedCard.card_faces.length > 1 ? (
+                        <div style={{ display: 'flex' }}>
+                            {selectedCard.card_faces.map((face, index) => (
+                                <div key={index} style={{ marginRight: '10px' }}>
+                                    {face.image_uris?.normal && (
+                                        <img src={face.image_uris?.normal} alt={face.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     ) : (
-                        <img src={selectedCard?.image_uris?.png} alt={selectedCard?.name} style={{ maxWidth: '100%' }} />
+                        <>
+                            {selectedCard?.image_uris?.normal && (
+                                <img src={selectedCard?.image_uris?.normal} alt={selectedCard?.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
+                            )}
+                        </>
                     )}
                 </DialogContent>
                 <DialogActions>
