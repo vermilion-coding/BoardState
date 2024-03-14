@@ -27,6 +27,10 @@ export default function Decks() {
         }
     }, [searchQuery]);
 
+    useEffect(() => {
+        document.title = currentDeck ? `Selected Cards - ${currentDeck.name}` : 'Selected Cards';
+    }, [currentDeck]);
+
     const addCardToSelected = (card) => {
         if (!deckCardCounts[currentDeck.id]) {
             setDeckCardCounts({
@@ -116,6 +120,9 @@ export default function Decks() {
                 deck.id === deckId ? { ...deck, name: newName } : deck
             );
             setDecks(updatedDecks);
+            if (currentDeck && currentDeck.id === deckId) {
+                setCurrentDeck({ ...currentDeck, name: newName });
+            }
         }
     };
 
@@ -143,7 +150,7 @@ export default function Decks() {
     return (
         <Container maxWidth="lg">
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={currentDeck ? 6 : 12}>
                     <Box border={1} borderRadius={4} p={2} style={{ height: '375px', maxHeight: '400px', overflowY: 'auto' }}>
                         <Typography variant="h4">Decks</Typography>
                         <Button variant="contained" onClick={createNewDeck}>New Deck</Button>
@@ -162,9 +169,11 @@ export default function Decks() {
                         </Box>
                     </Box>
                 </Grid>
+                {currentDeck && (
+                <>
                 <Grid item xs={12} sm={6}>
                     <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
-                        <Typography variant="h5">Current List</Typography>
+                        <Typography variant="h5">{`Selected Cards - ${currentDeck.name}`}</Typography>
                         <Box mt={1} style={{ height: '300px', maxHeight: '300px', overflowY: 'auto' }}>
                             {selectedCards.map((card, index) => (
                                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
@@ -177,26 +186,30 @@ export default function Decks() {
                         </Box>
                     </Box>
                 </Grid>
+                <Grid item xs={12} sm={6}>
+                    <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
+                        <TextField
+                            type="text"
+                            placeholder="Search for cards..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                        />
+                        <Box mt={2} style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                            <Typography variant="h5">Search Results:</Typography>
+                            {searchResults.map(card => (
+                                <div key={card.id} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+                                    <Typography onClick={() => handleCardNameClick(card)}>{card.name}</Typography>
+                                    <Button maxWidth='80px' variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '160px', height: '50px' }}>Add</Button>
+                                </div>
+                            ))}
+                        </Box>
+                    </Box>
+                </Grid>
+                </>
+                )}
             </Grid>
-            <Box border={1} borderRadius={4} p={2} mt={3}>
-                <TextField
-                    type="text"
-                    placeholder="Search for cards..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    variant="outlined"
-                    fullWidth
-                />
-                <Box mt={2} style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    <Typography variant="h5">Search Results:</Typography>
-                    {searchResults.map(card => (
-                        <div key={card.id} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-                            <Typography onClick={() => handleCardNameClick(card)}>{card.name}</Typography>
-                            <Button maxWidth='80px' variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '160px', height: '50px' }}>Add</Button>
-                        </div>
-                    ))}
-                </Box>
-            </Box>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogContent>
                     {selectedCard?.card_faces && selectedCard.card_faces.length > 1 ? (
