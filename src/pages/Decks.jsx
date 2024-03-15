@@ -162,7 +162,7 @@ export default function Decks() {
                     <Grid item xs={12}>
                         <Box border={1} borderRadius={4} p={2} style={{ height: '800px', maxHeight: '800px', overflowY: 'auto' }}>
                             <Typography variant="h4">Decks</Typography>
-                            <Button variant="contained" onClick={createNewDeck}>New Deck</Button>
+                            <Button variant="contained" onClick={createNewDeck} style={{ width: '320px', height: '50px' }}>New Deck</Button>
                             <Box mt={2} style={{ display: 'flex', flexDirection: 'column', maxHeight: '670px', overflowY: 'auto' }}>
                                 {decks.map(deck => (
                                     <div key={deck.id} style={{ border: '1px solid black', borderRadius: '4px', padding: '8px', marginBottom: '8px' }}>
