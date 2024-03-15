@@ -1,39 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, Card, CardContent } from '@mui/material';
 import axios from 'axios';
 
 export default function Home() {
-    const [trendingCards, setTrendingCards] = useState([]);
-    const [recentArticles, setRecentArticles] = useState([]);
+    const [randomCard, setRandomCard] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetchTrendingCards();
-        fetchRecentArticles();
-    }, []);
+        fetchRandomCard();
+    }, []); // Empty dependency array ensures this effect runs only once on mount
 
-    const fetchTrendingCards = () => {
-        // Fetch trending cards from TCGPlayer API
-        // Example API endpoint: https://api.tcgplayer.com/trending_products
-        // Replace the URL with the actual API endpoint
-        axios.get('https://api.tcgplayer.com/trending_products')
+    const fetchRandomCard = () => {
+        // Fetch random card from Scryfall API
+        setIsLoading(true);
+        axios.get('https://api.scryfall.com/cards/random')
             .then(response => {
-                setTrendingCards(response.data);
+                const cardData = response.data;
+                // Check if the card has multiple faces
+                if (cardData.card_faces && cardData.card_faces.length > 0) {
+                    // For dual-faced cards, set the random card data to the first face
+                    setRandomCard(cardData.card_faces[0]);
+                } else {
+                    setRandomCard(cardData);
+                }
             })
             .catch(error => {
-                console.error('Error fetching trending cards:', error);
-            });
-    };
-
-    const fetchRecentArticles = () => {
-        // Fetch recent articles from EDHRec.com API
-        // Example API endpoint: https://api.edhrec.com/articles/recent
-        // Replace the URL with the actual API endpoint
-        axios.get('https://api.edhrec.com/articles/recent')
-            .then(response => {
-                setRecentArticles(response.data);
+                console.error('Error fetching random card:', error);
             })
-            .catch(error => {
-                console.error('Error fetching recent articles:', error);
+            .finally(() => {
+                setIsLoading(false);
             });
     };
 
@@ -41,26 +36,19 @@ export default function Home() {
         <Container maxWidth="lg">
             <Typography variant="h2" gutterBottom style={{ fontFamily: 'Arial', borderBottom: '2px solid #000', marginBottom: '20px' }}>Home</Typography>
             
-            {/* Trending Cards Section */}
+            {/* Random Card Section */}
             <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 4, border: '2px solid #000', marginBottom: '20px' }}>
-                <Typography variant="h4" gutterBottom>Trending Cards on TCGPlayer</Typography>
-                <Box>
-                    {trendingCards.map(card => (
-                        <Typography key={card.id} variant="body1">{card.name} - ${card.price}</Typography>
-                    ))}
-                </Box>
-            </Box>
-
-            {/* Recent Articles Section */}
-            <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 4, border: '2px solid #000' }}>
-                <Typography variant="h4" gutterBottom>Recent Articles from EDHRec.com</Typography>
-                <Box>
-                    {recentArticles.map(article => (
-                        <Typography key={article.id} variant="body1">{article.title}</Typography>
-                    ))}
-                </Box>
+                <Typography variant="h4" gutterBottom>Welcome to BoardState!</Typography>
+                {isLoading && <Typography>Loading...</Typography>}
+                {randomCard && !isLoading && (
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h5" gutterBottom>Random Card Art: {randomCard.name}</Typography>
+                            <img src={randomCard.image_uris.art_crop} alt={randomCard.name} style={{ maxWidth: '70%' }} />
+                        </CardContent>
+                    </Card>
+                )}
             </Box>
         </Container>
     );
 }
-
