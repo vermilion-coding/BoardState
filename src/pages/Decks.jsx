@@ -29,7 +29,7 @@ export default function Decks() {
     }, [searchQuery]);
 
     useEffect(() => {
-        document.title = currentDeck ? `Selected Cards - ${currentDeck.name}` : 'Selected Cards';
+        document.title = currentDeck ? `Deck: ${currentDeck.name}` : 'BoardState';
     }, [currentDeck]);
 
     const addCardToSelected = (card) => {
