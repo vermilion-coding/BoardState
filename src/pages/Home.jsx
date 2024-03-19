@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, Card, CardContent } from '@mui/material';
 import axios from 'axios';
+import './Home.css';
 
 export default function Home() {
     const [randomCard, setRandomCard] = useState(null);
