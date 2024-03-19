@@ -192,12 +192,14 @@ export default function Decks() {
                             <Typography variant="h5">Selected Cards</Typography>
                             <Box mt={1} style={{ height: '630px', maxHeight: '630px', overflowY: 'auto' }}>
                                 {selectedCards.map((card, index) => (
-                                    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-                                        <Typography style={{ width: '80px' }}>{deckCardCounts[currentDeck.id][card.id] || 0}</Typography>
-                                        <Typography onClick={() => handleCardNameClick(card)}>{card.name}</Typography>
-                                        <Button variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '80px', height: '50px' }}>+</Button>
-                                        <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)} style={{ width: '80px', height: '50px' }}>-</Button>
-                                    </div>
+                                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'pointer', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }}>
+                                        <Typography style={{ width: '80px', textAlign: 'center' }}>{deckCardCounts[currentDeck.id][card.id] || 0}</Typography>
+                                        <Typography onClick={() => handleCardNameClick(card)} style={{ flexGrow: 1, marginLeft: '8px' }}>{card.name}</Typography>
+                                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                            <Button variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '80px', height: '50px' }}>+</Button>
+                                            <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)} style={{ width: '80px', height: '50px' }}>-</Button>
+                                        </div>
+                                    </div>                              
                                 ))}
                             </Box>
                         </Box>
@@ -217,10 +219,14 @@ export default function Decks() {
                             <Box mt={2} style={{ maxHeight: '600px', overflowY: 'auto' }}>
                                 <Typography variant="h5">Search Results</Typography>
                                 {searchResults.map(card => (
-                                    <div key={card.id} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-                                        <Typography onClick={() => handleCardNameClick(card)}>{card.name}</Typography>
-                                        <Button maxWidth='80px' variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '160px', height: '50px' }}>Add</Button>
+                                    <div key={card.id} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
+                                        <div style={{ marginLeft: '8px' }}>
+                                            <Typography>{card.name}</Typography>
+                                        </div>
+                                        <Button variant="contained" size="small" onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }} style={{ width: '80px', height: '50px' }}>Add</Button>
                                     </div>
+                                
+                                
                                 ))}
                             </Box>
                         </Box>
