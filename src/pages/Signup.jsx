@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
-const LoginPage = () => {
+const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
 
   const handleEmailChange = (event) => {
@@ -15,12 +16,21 @@ const LoginPage = () => {
     setPassword(event.target.value);
   };
 
+  const handleConfirmPasswordChange = (event) => {
+    setConfirmPassword(event.target.value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
       const auth = getAuth();
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
       setError(error.message);
     }
@@ -31,7 +41,7 @@ const LoginPage = () => {
       <Grid item xs={10} sm={8} md={6} lg={4}>
         <Paper elevation={3} style={{ padding: '20px' }}>
           <Typography variant="h5" align="center" gutterBottom>
-            Login
+            Sign Up
           </Typography>
           {error && <Typography color="error">{error}</Typography>}
           <form onSubmit={handleSubmit}>
@@ -51,8 +61,16 @@ const LoginPage = () => {
               value={password}
               onChange={handlePasswordChange}
             />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+            />
             <Button type="submit" variant="contained" color="primary" fullWidth>
-              Login
+              Sign Up
             </Button>
           </form>
         </Paper>
@@ -61,5 +79,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
-
+export default SignUpPage;

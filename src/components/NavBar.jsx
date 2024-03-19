@@ -10,8 +10,9 @@ export default function NavBar() {
       </Link>
       <ul className="nav-links">
         <CustomLink to="/decks">Decks</CustomLink>
+        <CustomLink to="/login">Log In</CustomLink>
+        <CustomLink to="/signup">Sign Up</CustomLink>
         <CustomLink to="/about">About</CustomLink>
-        <CustomLink to="/login">Log in</CustomLink>
       </ul>
     </nav>
   );
