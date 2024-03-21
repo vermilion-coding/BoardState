@@ -1,13 +1,14 @@
-import { useState } from 'react'
-import NavBar from './components/NavBar'
-import Home from './pages/Home'
-import Decks from './pages/Decks'
-import About from './pages/About'
-import LoginPage from './pages/Login'
-import {Route, Routes} from "react-router-dom"
-import SignUpPage from './pages/Signup'
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import React, { useState, useEffect } from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import Home from './pages/Home';
+import Decks from './pages/Decks';
+import About from './pages/About';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import LifeCounter from './pages/LifeCounter';
 
 
 // Your web app's Firebase configuration
@@ -22,21 +23,32 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-function App() {
+export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setUser(user);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <>
-      <NavBar/>
-      <div className='container'>
-        <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="/decks" element={<Decks/>}/>
-          <Route path="/about" element={<About/>}/>
-          <Route path="/login" element={<LoginPage/>}/>
-          <Route path="/signup" element={<SignUpPage/>}/>
-        </Routes>
-      </div>
+      <NavBar user={user} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/decks" element={<Decks />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/lifecounter" element={<LifeCounter />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
     </>
-    )
-  }
-export default App
+  );
+}

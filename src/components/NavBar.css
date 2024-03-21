@@ -32,6 +32,16 @@
   transition: border-color 0.3s;
 }
 
+.nav-item {
+  text-decoration: none;
+  color: #fff;
+  padding: 10px 20px;
+  margin-right: 20px; /* Added margin between buttons */
+  border: 1px solid transparent;
+  border-radius: 5px;
+  transition: border-color 0.3s;
+}
+
 .nav-link:hover,
 .nav-link.active {
   color: white;
@@ -41,3 +51,14 @@
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+.nav-item:hover,
+.nav-item.active {
+  color: white;
+  border-color: white;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
