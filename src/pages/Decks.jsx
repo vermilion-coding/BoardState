@@ -163,17 +163,17 @@ export default function Decks() {
                         <Box border={1} borderRadius={4} p={2} style={{ height: '800px', maxHeight: '800px', overflowY: 'auto' }}>
                             <Typography variant="h4">Decks</Typography>
                             <Button variant="contained" onClick={createNewDeck} style={{ width: '320px', height: '50px' }}>New Deck</Button>
-                            <Box mt={2} style={{ display: 'flex', flexDirection: 'column', maxHeight: '670px', overflowY: 'auto' }}>
-                                {decks.map(deck => (
-                                    <div key={deck.id} style={{ border: '1px solid black', borderRadius: '4px', padding: '8px', marginBottom: '8px' }}>
+                            <Box mt={2} style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', maxHeight: '670px', overflowY: 'auto' }}>
+                                {decks.sort((a, b) => a.id - b.id).map(deck => (
+                                    <Box key={deck.id} width="30%" m={1} p={1} boxShadow={1} borderRadius={4} bgcolor="background.paper">
                                         <Typography variant="h6">{deck.name}</Typography>
-                                        <div>
+                                        <Box display="flex" justifyContent="space-around" mt={2}>
                                             <Button variant="contained" onClick={() => selectDeck(deck)} style={{ width: '80px', height: '50px' }}>Edit</Button>
                                             <Button variant="contained" onClick={() => deleteDeck(deck.id)} style={{ width: '80px', height: '50px' }}>Delete</Button>
                                             <Button variant="contained" onClick={() => renameDeck(deck.id)} style={{ width: '80px', height: '50px' }}>Rename</Button>
                                             <Button variant="contained" onClick={() => exportDeck(deck)} style={{ width: '80px', height: '50px' }}>Export</Button>
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 ))}
                             </Box>
                         </Box>
