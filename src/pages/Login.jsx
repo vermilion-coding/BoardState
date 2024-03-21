@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; // Add this import
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize useHistory
+
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -20,6 +23,8 @@ const LoginPage = () => {
     try {
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, email, password);
+      alert('Log in successful!');
+      navigate('/');
     } catch (error) {
       setError(error.message);
     }
