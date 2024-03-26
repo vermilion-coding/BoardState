@@ -2,18 +2,22 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import "./NavBar.css";
+import { useNavigate } from 'react-router-dom';
 
 export default function NavBar({ user }) {
   const auth = getAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
         console.log("Sign out successful");
+        navigate('/');
       })
       .catch((error) => {
         console.error("Error signing out:", error);
       });
+
   };
 
   return (
@@ -28,6 +32,8 @@ export default function NavBar({ user }) {
             <li className="nav-item" onClick={handleSignOut}>
               Log Out
             </li>
+            <CustomLink to="/decks">Decks</CustomLink>
+            <CustomLink to="/lifecounter">Life Counter</CustomLink>
           </>
         ) : (
           <>
@@ -35,8 +41,6 @@ export default function NavBar({ user }) {
             <CustomLink to="/signup">Sign Up</CustomLink>
           </>
         )}
-        <CustomLink to="/decks">Decks</CustomLink>
-        <CustomLink to="/lifecounter">Life Counter</CustomLink>
         <CustomLink to="/about">About</CustomLink>
       </ul>
     </nav>

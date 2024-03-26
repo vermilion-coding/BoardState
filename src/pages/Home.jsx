@@ -61,7 +61,7 @@ export default function Home() {
 
     return (
         <Container maxWidth="lg">
-            <Typography variant="h2" gutterBottom style={{ fontFamily: 'Arial', borderBottom: '2px solid #000', marginBottom: '20px' }}>Welcome to BoardState!</Typography>
+            <Typography align= 'center' variant="h2" gutterBottom style={{ fontFamily: 'Arial', borderBottom: '2px solid #000', marginBottom: '20px' }}>Welcome to BoardState!</Typography>
             
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>

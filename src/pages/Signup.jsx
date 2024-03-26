@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { doc, setDoc, getFirestore } from 'firebase/firestore'; // Import Firestore functions
+import { doc, setDoc, getFirestore, collection, addDoc} from 'firebase/firestore'; // Import Firestore functions
 
 const SignUpPage = () => {
   const [email, setEmail] = useState('');
@@ -27,26 +27,31 @@ const SignUpPage = () => {
     event.preventDefault();
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
+        setError('Passwords do not match');
+        return;
     }
 
     try {
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const auth = getAuth();
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      // Create a new Firestore collection for the user
-      const db = getFirestore();
-      const userRef = doc(db, 'users', userCredential.user.uid);
-      await setDoc(userRef, { email: userCredential.user.email });
-      
-      // Show success message and redirect to home page
-      alert('Sign up successful!');
-      navigate('/');
+        // Create a new Firestore collection for the user
+        const db = getFirestore();
+        const userRef = doc(db, 'users', userCredential.user.uid);
+        await setDoc(userRef, { email: userCredential.user.email });
+
+        // Create a new "decks" collection inside the user document
+        const decksCollectionRef = collection(userRef, 'decks');
+        await addDoc(decksCollectionRef, { placeholder: 'placeholder' }); // Example field, add your desired data here
+
+        // Show success message and redirect to home page
+        alert('Sign up successful!');
+        navigate('/');
     } catch (error) {
-      setError(error.message);
+        setError(error.message);
     }
-  };
+};
+
 
   return (
     <Grid container justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
