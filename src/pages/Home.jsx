@@ -28,7 +28,7 @@ export default function Home() {
                 // Check if the card has multiple faces
                 if (cardData.card_faces && cardData.card_faces.length > 0) {
                     // For dual-faced cards, set the random card data to the first face
-                    setRandomCard(cardData.card_faces[0]);
+                    setRandomCard(cardData.card_faces[0]); //DISPLAY BOTH
                 } else {
                     setRandomCard(cardData);
                 }

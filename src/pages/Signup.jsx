@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
+import { doc, setDoc, getFirestore } from 'firebase/firestore'; // Import Firestore functions
 
 const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize useHistory
+  const navigate = useNavigate();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -32,7 +33,13 @@ const SignUpPage = () => {
 
     try {
       const auth = getAuth();
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Create a new Firestore collection for the user
+      const db = getFirestore();
+      const userRef = doc(db, 'users', userCredential.user.uid);
+      await setDoc(userRef, { email: userCredential.user.email });
+      
       // Show success message and redirect to home page
       alert('Sign up successful!');
       navigate('/');

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
+import { doc, setDoc, collection, addDoc } from 'firebase/firestore'; // Import Firestore functions
+import { getAuth } from 'firebase/auth';
 
 export default function Decks() {
     const [selectedCards, setSelectedCards] = useState([]);
@@ -83,7 +85,15 @@ export default function Decks() {
         }
     };
 
-    const createNewDeck = () => {
+    const createNewDeck = async () => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+    
+        if (!user) {
+            // User not logged in, handle this case accordingly
+            return;
+        }
+        
         const newDeck = {
             id: Date.now(),
             name: `Deck ${decks.length + 1}`,
@@ -93,8 +103,9 @@ export default function Decks() {
         setDecks(updatedDecks);
         setCurrentDeck(newDeck);
         setSelectedCards([]);
-    };
 
+    };
+    
     const selectDeck = (deck) => {
         setCurrentDeck(deck);
         setSelectedCards(deck.cards);
@@ -102,11 +113,14 @@ export default function Decks() {
     };
 
     const saveDeck = (deck, cards) => {
-        const updatedDecks = decks.map(d =>
-            d.id === deck.id ? { ...d, cards: cards } : d
-        );
-        setDecks(updatedDecks);
+        // Update the 'decks' collection in Firestore
+        const deckRef = doc(db, 'decks', deck.id.toString());
+        setDoc(deckRef, {
+            name: deck.name,
+            cards: cards.map(card => ({ id: card.id, name: card.name })),
+        });
     };
+    
 
     const deleteDeck = (deckId) => {
         const updatedDecks = decks.filter(deck => deck.id !== deckId);
@@ -161,76 +175,74 @@ export default function Decks() {
                 {showDeck ? (
                     <Grid item xs={12}>
                         <Box border={1} borderRadius={4} p={2} style={{ height: '800px', maxHeight: '800px', overflowY: 'auto' }}>
-                            <Typography variant="h4">Decks</Typography>
-                            <Button variant="contained" onClick={createNewDeck} style={{ width: '320px', height: '50px' }}>New Deck</Button>
-                            <Box mt={2} style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', maxHeight: '670px', overflowY: 'auto' }}>
+                            <Typography align="center" variant="h4">Decks</Typography>
+                            <Button variant="contained" onClick={createNewDeck} fullWidth style={{ margin: '1rem 0' }}>New Deck</Button>
+                            <Grid container spacing={2}>
                                 {decks.sort((a, b) => a.id - b.id).map(deck => (
-                                    <Box key={deck.id} width="30%" m={1} p={1} boxShadow={1} borderRadius={4} bgcolor="background.paper">
-                                        <Typography variant="h6">{deck.name}</Typography>
-                                        <Box display="flex" justifyContent="space-around" mt={2}>
-                                            <Button variant="contained" onClick={() => selectDeck(deck)} style={{ width: '80px', height: '50px' }}>Edit</Button>
-                                            <Button variant="contained" onClick={() => deleteDeck(deck.id)} style={{ width: '80px', height: '50px' }}>Delete</Button>
-                                            <Button variant="contained" onClick={() => renameDeck(deck.id)} style={{ width: '80px', height: '50px' }}>Rename</Button>
-                                            <Button variant="contained" onClick={() => exportDeck(deck)} style={{ width: '80px', height: '50px' }}>Export</Button>
+                                    <Grid key={deck.id} item xs={12} sm={4}>
+                                        <Box border={1} borderRadius={4} p={2} bgcolor="background.paper">
+                                            <Typography variant="h6">{deck.name}</Typography>
+                                            <Box mt={2} display="flex" justifyContent="space-around">
+                                                <Button variant="contained" onClick={() => selectDeck(deck)}>Edit</Button>
+                                                <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
+                                                <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
+                                                <Button variant="contained" onClick={() => exportDeck(deck)}>Export</Button>
+                                            </Box>
                                         </Box>
-                                    </Box>
+                                    </Grid>
                                 ))}
-                            </Box>
+                            </Grid>
                         </Box>
                     </Grid>
                 ) : (
                     <Grid item xs={12} sm={12}>
-                        <Box border={1} borderRadius={4} p={2} style={{ display: 'flex', alignItems: 'center' }}>
-                            <Button variant="contained" onClick={handleBackButtonClick} style={{ width: '80px', height: '50px' }}>Back</Button>
+                        <Box border={1} borderRadius={4} p={2} display="flex" alignItems="center">
+                            <Button variant="contained" onClick={handleBackButtonClick}>Back</Button>
                             <Typography variant="h4" style={{ marginLeft: 'auto' }}>{currentDeck.name}</Typography>
                         </Box>
                     </Grid>
                 )}
                 {!showDeck && (
-                    <Grid item xs={12} sm={5.5}>
-                        <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
-                            <Typography variant="h5">Selected Cards</Typography>
-                            <Box mt={1} style={{ height: '630px', maxHeight: '630px', overflowY: 'auto' }}>
-                                {selectedCards.map((card, index) => (
-                                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'pointer', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }}>
-                                        <Typography style={{ width: '80px', textAlign: 'center' }}>{deckCardCounts[currentDeck.id][card.id] || 0}</Typography>
-                                        <Typography onClick={() => handleCardNameClick(card)} style={{ flexGrow: 1, marginLeft: '8px' }}>{card.name}</Typography>
-                                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                            <Button variant="contained" size="small" onClick={() => addCardToSelected(card)} style={{ width: '80px', height: '50px' }}>+</Button>
-                                            <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)} style={{ width: '80px', height: '50px' }}>-</Button>
-                                        </div>
-                                    </div>                              
-                                ))}
+                    <>
+                        <Grid item xs={12} sm={5}>
+                            <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
+                                <Typography variant="h5">Selected Cards</Typography>
+                                <Box mt={1} style={{ height: '630px', maxHeight: '630px', overflowY: 'auto' }}>
+                                    {selectedCards.map((card, index) => (
+                                        <Box key={index} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4}>
+                                            <Typography>{deckCardCounts[currentDeck.id][card.id] || 0}x</Typography>
+                                            <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                            <div>
+                                                <Button variant="contained" size="small" onClick={() => addCardToSelected(card)}>+</Button>
+                                                <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                            </div>
+                                        </Box>
+                                    ))}
+                                </Box>
                             </Box>
-                        </Box>
-                    </Grid>
-                )}
-                {!showDeck && (
-                    <Grid item xs={12} sm={6}>
-                        <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
-                            <TextField
-                                type="text"
-                                placeholder="Search for cards..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                variant="outlined"
-                                fullWidth
-                            />
-                            <Box mt={2} style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                                <Typography variant="h5">Search Results</Typography>
-                                {searchResults.map(card => (
-                                    <div key={card.id} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
-                                        <div style={{ marginLeft: '8px' }}>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
+                                <TextField
+                                    type="text"
+                                    placeholder="Search for cards..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    variant="outlined"
+                                    fullWidth
+                                />
+                                <Box mt={2} style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                                    <Typography variant="h5">Search Results</Typography>
+                                    {searchResults.map(card => (
+                                        <Box key={card.id} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
                                             <Typography>{card.name}</Typography>
-                                        </div>
-                                        <Button variant="contained" size="small" onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }} style={{ width: '80px', height: '50px' }}>Add</Button>
-                                    </div>
-                                
-                                
-                                ))}
+                                            <Button variant="contained" size="small" onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }}>Add</Button>
+                                        </Box>
+                                    ))}
+                                </Box>
                             </Box>
-                        </Box>
-                    </Grid>
+                        </Grid>
+                    </>
                 )}
             </Grid>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -240,7 +252,7 @@ export default function Decks() {
                             {selectedCard.card_faces.map((face, index) => (
                                 <div key={index} style={{ marginRight: '10px' }}>
                                     {face.image_uris?.normal && (
-                                        <img src={face.image_uris?.normal} alt={face.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
+                                        <img src={face.image_uris.normal} alt={face.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
                                     )}
                                 </div>
                             ))}
@@ -248,7 +260,7 @@ export default function Decks() {
                     ) : (
                         <>
                             {selectedCard?.image_uris?.normal && (
-                                <img src={selectedCard?.image_uris?.normal} alt={selectedCard?.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
+                                <img src={selectedCard.image_uris.normal} alt={selectedCard.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
                             )}
                         </>
                     )}
