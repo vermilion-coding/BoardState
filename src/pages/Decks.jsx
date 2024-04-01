@@ -31,45 +31,6 @@ export default function Decks() {
     }, [db]);
 
     useEffect(() => {
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        const fetchDecks = async () => {
-            if (!user || !db) {
-                return;
-            }
-        
-            const userDocRef = doc(db, 'users', user.uid);
-            const userDocSnapshot = await getDoc(userDocRef);
-        
-            if (!userDocSnapshot.exists()) {
-                return;
-            }
-        
-            const userDecksRef = collection(userDocRef, 'decks');
-            const userDecksSnapshot = await getDocs(userDecksRef);
-        
-            const userDecks = await Promise.all(userDecksSnapshot.docs.map(async doc => {
-                const deckData = doc.data();
-        
-                // Query the cards collection for each deck
-                const cardsSnapshot = await getDocs(collection(userDecksRef, doc.id, 'cards'));
-                const cards = cardsSnapshot.docs.map(cardDoc => cardDoc.data());
-        
-                return {
-                    id: doc.id,
-                    ...deckData,
-                    cards: cards // Include the fetched cards in the deck object
-                };
-            }));
-        
-            setDecks(userDecks);
-        };
-        
-        fetchDecks();
-    }, [db]);
-
-    useEffect(() => {
         if (searchQuery.trim() !== '') {
             axios.get(`https://api.scryfall.com/cards/search?q=${searchQuery}&limit=10&order=name`)
                 .then(response => {
@@ -105,19 +66,10 @@ export default function Decks() {
             }
     
             const userDocRef = doc(db, 'users', user.uid);
-            console.log('User document reference:', userDocRef.path);
             
             const decksCollectionRef = collection(userDocRef, 'decks');
-            console.log('Decks collection reference:', decksCollectionRef.path);
             
-            const deckRef = doc(decksCollectionRef, deckId);
-            console.log('Deck document reference:', deckRef.path);
-            
-    
-            if (!deckDoc.exists()) {
-                console.error('Deck not found');
-                return;
-            }
+            const deckRef = doc(decksCollectionRef, deckId);            
     
             const cardsCollectionRef = collection(deckRef, 'cards');
             const cardsSnapshot = await getDocs(cardsCollectionRef);
@@ -133,111 +85,96 @@ export default function Decks() {
             
             // Update the state with the selected cards
             setSelectedCards(selectedCards);
+            setCurrentDeck(deckRef);
+            setShowDeck(false);
         } catch (error) {
             console.error('Error getting selected cards:', error);
         }
+        
     };
-    
-    
     
 
     const addCardToSelected = async (card) => {
-        let newSelectedCards;
-        if (!deckCardCounts[currentDeck.id] || !deckCardCounts[currentDeck.id][card.id]) {
-            setDeckCardCounts({
-                ...deckCardCounts,
-                [currentDeck.id]: {
-                    ...deckCardCounts[currentDeck.id],
-                    [card.id]: 1
-                }
-            });
-            newSelectedCards = [...selectedCards, { ...card, counters: 1 }];
-        } else {
-            setDeckCardCounts({
-                ...deckCardCounts,
-                [currentDeck.id]: {
-                    ...deckCardCounts[currentDeck.id],
-                    [card.id]: deckCardCounts[currentDeck.id][card.id] + 1
-                }
-            });
-            newSelectedCards = selectedCards.map(selectedCard =>
-                selectedCard.id === card.id
-                    ? { ...selectedCard, counters: selectedCard.counters + 1 }
-                    : selectedCard
-            );
-        }
-
-        setSelectedCards(newSelectedCards);
-
-        // Update the deck's document in Firestore
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (user) {
+        try {
             const db = getFirestore();
+            const user = getAuth().currentUser;
+            if (!db || !user) {
+                console.error('Firestore instance not available or user not logged in');
+                return;
+            }
+    
             const userDocRef = doc(db, 'users', user.uid);
             const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
-            await updateDoc(deckRef, {
-                cards: newSelectedCards.map(card => ({
-                    id: card.id,
+    
+            const selectedCardsRef = collection(deckRef, 'cards');
+            const cardDoc = doc(selectedCardsRef, card.id);
+    
+            const cardDocSnapshot = await getDoc(cardDoc);
+            if (!cardDocSnapshot.exists()) {
+                // Card doesn't exist in the deck, create a new instance
+                const cardData = {
                     name: card.name,
-                    counters: card.counters,
-                })),
-            });
+                    counters: 1
+                };
+    
+                // Check if the card has multiple faces
+                if (card.card_faces && card.card_faces.length > 1) {
+                    cardData.image_uris = card.card_faces.map(face => face.image_uris.normal);
+                } else {
+                    cardData.image = card.image_uris.normal;
+                }
+    
+                await setDoc(cardDoc, cardData);
+            } else {
+                // Card already exists in the deck, update the counters
+                await updateDoc(cardDoc, {
+                    counters: cardDocSnapshot.data().counters + 1
+                });
+            }
+    
+            // Update selectedCards state only if the card was added
+            if (!cardDocSnapshot.exists()) {
+                const updatedSelectedCards = [...selectedCards, { ...card, counters: 1 }];
+                setSelectedCards(updatedSelectedCards);
+            }
+        } catch (error) {
+            console.error('Error adding card to selected:', error);
         }
     };
-
+    
+    
+    
     const removeCardFromSelected = async (cardId) => {
-        const updatedCounts = { ...deckCardCounts[currentDeck.id] };
-        if (updatedCounts[cardId] > 1) {
-            updatedCounts[cardId]--;
-            setDeckCardCounts({
-                ...deckCardCounts,
-                [currentDeck.id]: updatedCounts
-            });
-
-            // Update the card count in Firestore
-            const auth = getAuth();
-            const user = auth.currentUser;
-            if (user) {
-                const db = getFirestore();
-                const userDocRef = doc(db, 'users', user.uid);
-                const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
-                await updateDoc(deckRef, {
-                    cards: selectedCards.map(card => ({
-                        id: card.id,
-                        name: card.name,
-                        counters: updatedCounts[card.id] || 0
-                    })),
-                });
+        try {
+            const db = getFirestore();
+            const user = getAuth().currentUser;
+            if (!db || !user) {
+                console.error('Firestore instance not available or user not logged in');
+                return;
             }
-        } else {
-            delete updatedCounts[cardId];
-
-            // Update the card count in Firestore
-            const auth = getAuth();
-            const user = auth.currentUser;
-            if (user) {
-                const db = getFirestore();
-                const userDocRef = doc(db, 'users', user.uid);
-                const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
-                await updateDoc(deckRef, {
-                    cards: selectedCards.filter(card => card.id !== cardId).map(card => ({
-                        id: card.id,
-                        name: card.name,
-                        counters: updatedCounts[card.id] || 0
-                    })),
-                });
+    
+            const userDocRef = doc(db, 'users', user.uid);
+            const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
+    
+            const selectedCardsRef = collection(deckRef, 'cards');
+            const cardDoc = doc(selectedCardsRef, cardId);
+    
+            const cardDocSnapshot = await getDoc(cardDoc);
+            if (cardDocSnapshot.exists()) {
+                const currentCount = cardDocSnapshot.data().counters;
+                if (currentCount > 1) {
+                    await updateDoc(cardDoc, {
+                        counters: currentCount - 1
+                    });
+                } else {
+                    await deleteDoc(cardDoc);
+                }
             }
-
-            setDeckCardCounts({
-                ...deckCardCounts,
-                [currentDeck.id]: updatedCounts
-            });
-            const updatedSelectedCards = selectedCards.filter(card => card.id !== cardId);
-            setSelectedCards(updatedSelectedCards);
-            saveDeck(currentDeck, updatedSelectedCards);
+        } catch (error) {
+            console.error('Error removing card from selected:', error);
         }
     };
+    
 
     const createNewDeck = async () => {
         const auth = getAuth();
@@ -281,22 +218,7 @@ export default function Decks() {
         setCurrentDeck(newDeck);
         setSelectedCards([cardData]);
     };
-    
-
-
-    const saveDeck = (deck, cards) => {
-        // Update the 'decks' collection in Firestore
-        const deckRef = doc(db, 'decks', deck.id.toString());
-        setDoc(deckRef, {
-            name: deck.name,
-            cards: cards.map(card => ({ id: card.id, name: card.name })),
-        });
-    
-        // Save the deck locally
-        localDeck = { id: deck.id, name: deck.name, cards };
-    };
-    
-    
+      
 
     const deleteDeck = async (deckId) => {
         const updatedDecks = decks.filter(deck => deck.id !== deckId);
@@ -367,6 +289,56 @@ export default function Decks() {
         setSelectedCards([]);
     };
 
+    useEffect(() => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+    
+        const fetchDecks = async () => {
+            if (!user || !db) {
+                return;
+            }
+        
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDocSnapshot = await getDoc(userDocRef);
+        
+            if (!userDocSnapshot.exists()) {
+                return;
+            }
+        
+            const userDecksRef = collection(userDocRef, 'decks');
+            const userDecksSnapshot = await getDocs(userDecksRef);
+        
+            const userDecks = await Promise.all(userDecksSnapshot.docs.map(async doc => {
+                const deckData = doc.data();
+        
+                // Query the cards collection for each deck
+                const cardsSnapshot = await getDocs(collection(userDecksRef, doc.id, 'cards'));
+                const cards = cardsSnapshot.docs.map(cardDoc => cardDoc.data());
+        
+                return {
+                    id: doc.id,
+                    ...deckData,
+                    cards: cards // Include the fetched cards in the deck object
+                };
+            }));
+        
+            setDecks(userDecks);
+        };
+        
+        fetchDecks(); // Call fetchDecks initially
+        
+        // Call fetchDecks whenever addCardToSelected or removeCardFromSelected is called
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if (user) {
+                fetchDecks();
+            }
+        });
+    
+        // Cleanup function
+        return () => unsubscribe();
+    }, [db, addCardToSelected, removeCardFromSelected]);
+    
+
     return (
         <Container maxWidth="lg">
             <Grid container spacing={2}>
@@ -381,7 +353,7 @@ export default function Decks() {
                                         <Box border={1} borderRadius={4} p={2} bgcolor="background.paper">
                                             <Typography variant="h6">{deck.name}</Typography>
                                             <Box mt={2} display="flex" justifyContent="space-around">
-                                                <Button variant="contained" onClick={() => selectDeck(deck)}>Edit</Button>
+                                                <Button variant="contained" onClick={() => selectDeck(deck.id)}>Edit</Button>
                                                 <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
                                                 <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
                                                 <Button variant="contained" onClick={() => exportDeck(deck)}>Export</Button>
@@ -408,7 +380,11 @@ export default function Decks() {
                                 <Box mt={1} style={{ height: '630px', maxHeight: '630px', overflowY: 'auto' }}>
                                     {selectedCards.map((card, index) => (
                                         <Box key={index} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4}>
-                                            <Typography>{deckCardCounts[currentDeck.id][card.id] || 0}x</Typography>
+                                            <Typography>
+                                                {deckCardCounts[currentDeck.id] && deckCardCounts[currentDeck.id][card.id] ? 
+                                                    `${deckCardCounts[currentDeck.id][card.id]}x` 
+                                                    : '0x'}
+                                            </Typography>
                                             <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                             <div>
                                                 <Button variant="contained" size="small" onClick={() => addCardToSelected(card)}>+</Button>
@@ -468,5 +444,5 @@ export default function Decks() {
                 </DialogActions>
             </Dialog>
         </Container>
-    );
+    );    
 }
