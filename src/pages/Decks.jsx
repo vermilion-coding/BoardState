@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
-import { getFirestore, deleteDoc, doc, setDoc, updateDoc, collection, getDoc, addDoc } from 'firebase/firestore'; // Import Firestore functions
+import { getFirestore, deleteDoc, doc, setDoc, updateDoc, collection, getDoc, addDoc, getDocs } from 'firebase/firestore'; // Import Firestore functions
 import { getAuth } from 'firebase/auth';
 
 export default function Decks() {
@@ -14,38 +14,60 @@ export default function Decks() {
     const [openDialog, setOpenDialog] = useState(false);
     const [deckCardCounts, setDeckCardCounts] = useState({});
     const [showDeck, setShowDeck] = useState(true);
+    const [db, setDb] = useState(null); // Firestore instance
 
+    useEffect(() => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        const initializeFirestore = async () => {
+            const firestore = getFirestore();
+            setDb(firestore);
+        };
+
+        if (user && !db) {
+            initializeFirestore();
+        }
+    }, [db]);
 
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
 
         const fetchDecks = async () => {
-            if (!user) {
+            if (!user || !db) {
                 return;
             }
-
-            const db = getFirestore();
+        
             const userDocRef = doc(db, 'users', user.uid);
             const userDocSnapshot = await getDoc(userDocRef);
-
+        
             if (!userDocSnapshot.exists()) {
                 return;
             }
-
+        
             const userDecksRef = collection(userDocRef, 'decks');
             const userDecksSnapshot = await getDocs(userDecksRef);
-
-            const userDecks = userDecksSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
+        
+            const userDecks = await Promise.all(userDecksSnapshot.docs.map(async doc => {
+                const deckData = doc.data();
+        
+                // Query the cards collection for each deck
+                const cardsSnapshot = await getDocs(collection(userDecksRef, doc.id, 'cards'));
+                const cards = cardsSnapshot.docs.map(cardDoc => cardDoc.data());
+        
+                return {
+                    id: doc.id,
+                    ...deckData,
+                    cards: cards // Include the fetched cards in the deck object
+                };
             }));
-
+        
             setDecks(userDecks);
         };
-
+        
         fetchDecks();
-    }, []);
+    }, [db]);
 
     useEffect(() => {
         if (searchQuery.trim() !== '') {
@@ -66,15 +88,62 @@ export default function Decks() {
         document.title = currentDeck ? `Deck: ${currentDeck.name}` : 'BoardState';
     }, [currentDeck]);
 
+
+    const selectDeck = async (deckId) => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (!user) {
+            console.error('User not logged in');
+            return;
+        }
+    
+        try {
+            const db = getFirestore();
+            if (!db) {
+                console.error('Firestore instance not available');
+                return;
+            }
+    
+            const userDocRef = doc(db, 'users', user.uid);
+            console.log('User document reference:', userDocRef.path);
+            
+            const decksCollectionRef = collection(userDocRef, 'decks');
+            console.log('Decks collection reference:', decksCollectionRef.path);
+            
+            const deckRef = doc(decksCollectionRef, deckId);
+            console.log('Deck document reference:', deckRef.path);
+            
+    
+            if (!deckDoc.exists()) {
+                console.error('Deck not found');
+                return;
+            }
+    
+            const cardsCollectionRef = collection(deckRef, 'cards');
+            const cardsSnapshot = await getDocs(cardsCollectionRef);
+    
+            const selectedCards = cardsSnapshot.docs.map(cardDoc => {
+                const cardData = cardDoc.data();
+                return {
+                    id: cardDoc.id,
+                    name: cardData.name,
+                    counters: cardData.counters,
+                };
+            });
+            
+            // Update the state with the selected cards
+            setSelectedCards(selectedCards);
+        } catch (error) {
+            console.error('Error getting selected cards:', error);
+        }
+    };
+    
+    
+    
+
     const addCardToSelected = async (card) => {
         let newSelectedCards;
-        if (!deckCardCounts[currentDeck.id]) {
-            setDeckCardCounts({
-                ...deckCardCounts,
-                [currentDeck.id]: { [card.id]: 1 }
-            });
-            newSelectedCards = [...selectedCards, { ...card, counters: 1 }];
-        } else if (!deckCardCounts[currentDeck.id][card.id]) {
+        if (!deckCardCounts[currentDeck.id] || !deckCardCounts[currentDeck.id][card.id]) {
             setDeckCardCounts({
                 ...deckCardCounts,
                 [currentDeck.id]: {
@@ -97,9 +166,9 @@ export default function Decks() {
                     : selectedCard
             );
         }
-    
+
         setSelectedCards(newSelectedCards);
-    
+
         // Update the deck's document in Firestore
         const auth = getAuth();
         const user = auth.currentUser;
@@ -116,7 +185,7 @@ export default function Decks() {
             });
         }
     };
-    
+
     const removeCardFromSelected = async (cardId) => {
         const updatedCounts = { ...deckCardCounts[currentDeck.id] };
         if (updatedCounts[cardId] > 1) {
@@ -125,7 +194,7 @@ export default function Decks() {
                 ...deckCardCounts,
                 [currentDeck.id]: updatedCounts
             });
-    
+
             // Update the card count in Firestore
             const auth = getAuth();
             const user = auth.currentUser;
@@ -137,21 +206,14 @@ export default function Decks() {
                     cards: selectedCards.map(card => ({
                         id: card.id,
                         name: card.name,
-                        counters: deckCardCounts[currentDeck.id][card.id] || 0
+                        counters: updatedCounts[card.id] || 0
                     })),
                 });
             }
         } else {
             delete updatedCounts[cardId];
-            setDeckCardCounts({
-                ...deckCardCounts,
-                [currentDeck.id]: updatedCounts
-            });
-            const updatedSelectedCards = selectedCards.filter(card => card.id !== cardId);
-            setSelectedCards(updatedSelectedCards);
-            saveDeck(currentDeck, updatedSelectedCards);
-    
-            // Remove the card from Firestore if its count reaches zero
+
+            // Update the card count in Firestore
             const auth = getAuth();
             const user = auth.currentUser;
             if (user) {
@@ -159,16 +221,23 @@ export default function Decks() {
                 const userDocRef = doc(db, 'users', user.uid);
                 const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
                 await updateDoc(deckRef, {
-                    cards: updatedSelectedCards.map(card => ({
+                    cards: selectedCards.filter(card => card.id !== cardId).map(card => ({
                         id: card.id,
                         name: card.name,
-                        counters: deckCardCounts[currentDeck.id][card.id] || 0
+                        counters: updatedCounts[card.id] || 0
                     })),
                 });
             }
+
+            setDeckCardCounts({
+                ...deckCardCounts,
+                [currentDeck.id]: updatedCounts
+            });
+            const updatedSelectedCards = selectedCards.filter(card => card.id !== cardId);
+            setSelectedCards(updatedSelectedCards);
+            saveDeck(currentDeck, updatedSelectedCards);
         }
     };
-    
 
     const createNewDeck = async () => {
         const auth = getAuth();
@@ -190,26 +259,30 @@ export default function Decks() {
     
         const newDeckRef = await addDoc(collection(userDocRef, 'decks'), {
             name: `Deck ${decks.length + 1}`,
-            cards: [],
         });
+    
+        // Create a subcollection for cards for the new deck
+        const cardsCollectionRef = collection(newDeckRef, 'cards');
+        const cardData = {
+            id: 'f2dd95a1-98d5-4a5f-910d-12681750e4cf', // Aetherflux Reservoir card ID
+            name: 'Aetherflux Reservoir',
+            counters: 1,
+        };
+        await addDoc(cardsCollectionRef, cardData);
     
         const newDeck = {
             id: newDeckRef.id,
             name: `Deck ${decks.length + 1}`,
-            cards: [],
+            cards: cardsCollectionRef,
         };
     
         const updatedDecks = [...decks, newDeck];
         setDecks(updatedDecks);
         setCurrentDeck(newDeck);
-        setSelectedCards([]);
+        setSelectedCards([cardData]);
     };
     
-    const selectDeck = (deck) => {
-        setCurrentDeck(deck);
-        setSelectedCards(deck.cards);
-        setShowDeck(false);
-    };
+
 
     const saveDeck = (deck, cards) => {
         // Update the 'decks' collection in Firestore
@@ -218,7 +291,11 @@ export default function Decks() {
             name: deck.name,
             cards: cards.map(card => ({ id: card.id, name: card.name })),
         });
+    
+        // Save the deck locally
+        localDeck = { id: deck.id, name: deck.name, cards };
     };
+    
     
 
     const deleteDeck = async (deckId) => {
