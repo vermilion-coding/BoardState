@@ -107,9 +107,9 @@ export default function Decks() {
             const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
     
             const selectedCardsRef = collection(deckRef, 'cards');
-            const cardDoc = doc(selectedCardsRef, card.id);
+            const cardDocRef = doc(selectedCardsRef, card.id);
     
-            const cardDocSnapshot = await getDoc(cardDoc);
+            const cardDocSnapshot = await getDoc(cardDocRef);
             if (!cardDocSnapshot.exists()) {
                 // Card doesn't exist in the deck, create a new instance
                 const cardData = {
@@ -124,10 +124,16 @@ export default function Decks() {
                     cardData.image = card.image_uris.normal;
                 }
     
-                await setDoc(cardDoc, cardData);
+                // Check if the 'cards' subcollection exists and create the card document
+                const selectedCardsCollection = await getDocs(selectedCardsRef);
+                if (selectedCardsCollection.empty) {
+                    await setDoc(deckRef, { name: currentDeck.name || 'Untitled Deck', cards: [] }); // Create the 'cards' subcollection if it doesn't exist
+                }
+    
+                await setDoc(cardDocRef, cardData); // Add the card to the 'cards' subcollection
             } else {
                 // Card already exists in the deck, update the counters
-                await updateDoc(cardDoc, {
+                await updateDoc(cardDocRef, {
                     counters: cardDocSnapshot.data().counters + 1
                 });
             }
@@ -137,10 +143,15 @@ export default function Decks() {
                 const updatedSelectedCards = [...selectedCards, { ...card, counters: 1 }];
                 setSelectedCards(updatedSelectedCards);
             }
+    
+            await selectDeck(currentDeck.id);
         } catch (error) {
             console.error('Error adding card to selected:', error);
         }
     };
+    
+    
+    
     
     
     
@@ -170,6 +181,8 @@ export default function Decks() {
                     await deleteDoc(cardDoc);
                 }
             }
+            await selectDeck(currentDeck.id);
+
         } catch (error) {
             console.error('Error removing card from selected:', error);
         }
@@ -195,28 +208,19 @@ export default function Decks() {
         }
     
         const newDeckRef = await addDoc(collection(userDocRef, 'decks'), {
-            name: `Deck ${decks.length + 1}`,
+            name: `Untitled Deck`,
         });
     
-        // Create a subcollection for cards for the new deck
-        const cardsCollectionRef = collection(newDeckRef, 'cards');
-        const cardData = {
-            id: 'f2dd95a1-98d5-4a5f-910d-12681750e4cf', // Aetherflux Reservoir card ID
-            name: 'Aetherflux Reservoir',
-            counters: 1,
-        };
-        await addDoc(cardsCollectionRef, cardData);
+
     
         const newDeck = {
             id: newDeckRef.id,
-            name: `Deck ${decks.length + 1}`,
-            cards: cardsCollectionRef,
+            name: `Untitled Deck`,
         };
     
         const updatedDecks = [...decks, newDeck];
         setDecks(updatedDecks);
         setCurrentDeck(newDeck);
-        setSelectedCards([cardData]);
     };
       
 
@@ -271,16 +275,50 @@ export default function Decks() {
         setOpenDialog(false);
     };
 
-    const exportDeck = (deck) => {
-        const deckList = deck.cards.map(card => `${deckCardCounts[deck.id][card.id] || 1}x ${card.name}`).join('\n');
-        const blob = new Blob([deckList], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${deck.name}_Decklist.txt`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
+    const exportDeck = async (deckId) => {
+        try {
+            const db = getFirestore();
+            const user = getAuth().currentUser;
+            if (!db || !user) {
+                console.error('Firestore instance not available or user not logged in');
+                return;
+            }
+    
+            const userDocRef = doc(db, 'users', user.uid);
+            const deckRef = doc(collection(userDocRef, 'decks'), deckId);
+            const deckDoc = await getDoc(deckRef);
+    
+            if (!deckDoc.exists()) {
+                console.error('Deck not found');
+                return;
+            }
+    
+            const cardsCollectionRef = collection(deckRef, 'cards');
+            const cardsSnapshot = await getDocs(cardsCollectionRef);
+    
+            const deckCardCounts = {};
+            cardsSnapshot.forEach(cardDoc => {
+                const cardData = cardDoc.data();
+                deckCardCounts[cardDoc.id] = cardData.counters;
+            });
+    
+            const deckList = await Promise.all(cardsSnapshot.docs.map(async cardDoc => {
+                const cardData = cardDoc.data();
+                const cardName = cardData.name;
+                return `${deckCardCounts[cardDoc.id] || 1}x ${cardName}`;
+            }));
+    
+            const blob = new Blob([deckList.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${deckDoc.data().name}_Decklist.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting deck:', error);
+        }
     };
 
     const handleBackButtonClick = () => {
@@ -337,6 +375,8 @@ export default function Decks() {
         // Cleanup function
         return () => unsubscribe();
     }, [db, addCardToSelected, removeCardFromSelected]);
+
+
     
 
     return (
@@ -356,7 +396,7 @@ export default function Decks() {
                                                 <Button variant="contained" onClick={() => selectDeck(deck.id)}>Edit</Button>
                                                 <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
                                                 <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
-                                                <Button variant="contained" onClick={() => exportDeck(deck)}>Export</Button>
+                                                <Button variant="contained" onClick={() => exportDeck(deck.id)}>Export</Button>
                                             </Box>
                                         </Box>
                                     </Grid>
@@ -378,20 +418,19 @@ export default function Decks() {
                             <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
                                 <Typography variant="h5">Selected Cards</Typography>
                                 <Box mt={1} style={{ height: '630px', maxHeight: '630px', overflowY: 'auto' }}>
-                                    {selectedCards.map((card, index) => (
-                                        <Box key={index} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4}>
-                                            <Typography>
-                                                {deckCardCounts[currentDeck.id] && deckCardCounts[currentDeck.id][card.id] ? 
-                                                    `${deckCardCounts[currentDeck.id][card.id]}x` 
-                                                    : '0x'}
-                                            </Typography>
-                                            <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
-                                            <div>
-                                                <Button variant="contained" size="small" onClick={() => addCardToSelected(card)}>+</Button>
-                                                <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)}>-</Button>
-                                            </div>
-                                        </Box>
-                                    ))}
+                                {selectedCards.map((card, index) => (
+                                    <Box key={index} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4}>
+                                        <Typography>
+                                            {card.counters ? `${card.counters}x` : '0x'}
+                                        </Typography>
+                                        <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                        <div>
+                                            <Button variant="contained" size="small" onClick={() => addCardToSelected(card)}>+</Button>
+                                            <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        </div>
+                                    </Box>
+                                ))}
+
                                 </Box>
                             </Box>
                         </Grid>

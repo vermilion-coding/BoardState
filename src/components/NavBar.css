@@ -1,5 +1,5 @@
 .nav {
-  background-color: #333;
+  background-color: #8f8f8f;
   color: #fff;
   padding: 10px 20px;
   display: flex;
@@ -20,6 +20,7 @@
   display: flex;
   align-items: center;
   gap: 40px; /* Increased gap between items */
+  background-color: #8f8f8f ;
 }
 
 .nav-link {
