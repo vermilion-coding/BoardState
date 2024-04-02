@@ -1,16 +1,23 @@
+/* Apply box-sizing and font-family to all elements */
 * {
-    box-sizing:border-box;
-    width:auto;
-    height: auto;
+    box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Set default margin and padding for body */
 body {
     margin: 0;
+    padding: 0;
+    background-color: #333333; /* Set background color for the body */
+    background-image: url('https://wallpapercave.com/wp/wp7614063.jpg'); /* Set background image */
+    background-size: cover; /* Cover the entire background */
+    background-repeat: no-repeat; /* Do not repeat the background image */
+    width: 100vw; /* Full width of the viewport */
+    height: 100vh; /* Full height of the viewport */
 }
 
+/* Center the content in the container */
 .container {
-    margin: 1rem;
-    text-align:center;
+    margin: 1rem auto; /* Use auto for horizontal margin to center the container */
+    text-align: center;
 }
-

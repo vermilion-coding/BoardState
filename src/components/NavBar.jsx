@@ -50,7 +50,7 @@ export default function NavBar({ user }) {
 function CustomLink({ to, children }) {
   return (
     <li>
-      <NavLink to={to} className="nav-link">
+      <NavLink to={to} className="nav-item">
         {children}
       </NavLink>
     </li>

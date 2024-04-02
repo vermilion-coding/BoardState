@@ -1,0 +1,99 @@
+.deck-container {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    height: 800px;
+    max-height: 800px;
+    overflow-y: auto;
+}
+
+.new-deck-button {
+    margin: 1rem 0;
+    padding: 4rem;
+}
+
+.deck-box {
+    margin-bottom: 20px;
+    backdrop-filter: blur(7px); /* Apply blur effect to the box */
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    padding: 1.5rem;
+    border-radius: 4px;
+}
+
+.deck-actions {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.current-deck-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.selected-cards-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 0;
+    margin-left: 16px;
+}
+
+.selected-cards-list {
+    height: 630px;
+    overflow-y: auto;
+}
+
+.selected-card-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-results-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 0;
+    margin-left: 16px;
+}
+
+.search-results-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.card-faces-container {
+    display: flex;
+}
+
+.card-face {
+    margin-right: 10px;
+}
+
+.dialog-content {
+    display: flex;
+}
+
+.dialog-image {
+    max-width: 100%;
+    margin-bottom: 10px;
+}

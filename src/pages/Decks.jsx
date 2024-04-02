@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
 import { getFirestore, deleteDoc, doc, setDoc, updateDoc, collection, getDoc, addDoc, getDocs } from 'firebase/firestore'; // Import Firestore functions
 import { getAuth } from 'firebase/auth';
+import './Decks.css';
 
 export default function Decks() {
     const [selectedCards, setSelectedCards] = useState([]);
@@ -384,15 +385,14 @@ export default function Decks() {
             <Grid container spacing={2}>
                 {showDeck ? (
                     <Grid item xs={12}>
-                        <Box border={1} borderRadius={4} p={2} style={{ height: '800px', maxHeight: '800px', overflowY: 'auto' }}>
-                            <Typography align="center" variant="h4">Decks</Typography>
-                            <Button variant="contained" onClick={createNewDeck} fullWidth style={{ margin: '1rem 0' }}>New Deck</Button>
+                        <Box className="deck-container" p={2}>
+                            <Button className="new-deck-button" variant="contained" onClick={createNewDeck} fullWidth>New Deck</Button>
                             <Grid container spacing={2}>
                                 {decks.sort((a, b) => a.id - b.id).map(deck => (
                                     <Grid key={deck.id} item xs={12} sm={4}>
-                                        <Box border={1} borderRadius={4} p={2} bgcolor="background.paper">
+                                        <Box className="deck-box" p={2}>
                                             <Typography variant="h6">{deck.name}</Typography>
-                                            <Box mt={2} display="flex" justifyContent="space-around">
+                                            <Box className="deck-actions" mt={2} display="flex" justifyContent="space-around">
                                                 <Button variant="contained" onClick={() => selectDeck(deck.id)}>Edit</Button>
                                                 <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
                                                 <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
@@ -406,7 +406,7 @@ export default function Decks() {
                     </Grid>
                 ) : (
                     <Grid item xs={12} sm={12}>
-                        <Box border={1} borderRadius={4} p={2} display="flex" alignItems="center">
+                        <Box className="current-deck-box" p={2} display="flex" alignItems="center">
                             <Button variant="contained" onClick={handleBackButtonClick}>Back</Button>
                             <Typography variant="h4" style={{ marginLeft: 'auto' }}>{currentDeck.name}</Typography>
                         </Box>
@@ -415,27 +415,24 @@ export default function Decks() {
                 {!showDeck && (
                     <>
                         <Grid item xs={12} sm={5}>
-                            <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
+                            <Box className="selected-cards-box" p={2}>
                                 <Typography variant="h5">Selected Cards</Typography>
-                                <Box mt={1} style={{ height: '630px', maxHeight: '630px', overflowY: 'auto' }}>
-                                {selectedCards.map((card, index) => (
-                                    <Box key={index} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4}>
-                                        <Typography>
-                                            {card.counters ? `${card.counters}x` : '0x'}
-                                        </Typography>
-                                        <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
-                                        <div>
-                                            <Button variant="contained" size="small" onClick={() => addCardToSelected(card)}>+</Button>
-                                            <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)}>-</Button>
-                                        </div>
-                                    </Box>
-                                ))}
-
+                                <Box className="selected-cards-list" style={{ height: '630px', overflowY: 'auto' }}>
+                                    {selectedCards.map((card, index) => (
+                                        <Box key={index} className="selected-card-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1}>
+                                            <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                            <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                            <div>
+                                                <Button variant="contained" size="small" onClick={() => addCardToSelected(card)}>+</Button>
+                                                <Button variant="contained" size="small" onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                            </div>
+                                        </Box>
+                                    ))}
                                 </Box>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Box border={1} borderRadius={4} p={2} mt={0} ml={2}>
+                            <Box className="search-results-box" p={2}>
                                 <TextField
                                     type="text"
                                     placeholder="Search for cards..."
@@ -444,10 +441,10 @@ export default function Decks() {
                                     variant="outlined"
                                     fullWidth
                                 />
-                                <Box mt={2} style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                                <Box className="search-results-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                                     <Typography variant="h5">Search Results</Typography>
                                     {searchResults.map(card => (
-                                        <Box key={card.id} display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} border={1} borderRadius={4} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
+                                        <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
                                             <Typography>{card.name}</Typography>
                                             <Button variant="contained" size="small" onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }}>Add</Button>
                                         </Box>
@@ -461,11 +458,11 @@ export default function Decks() {
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogContent>
                     {selectedCard?.card_faces && selectedCard.card_faces.length > 1 ? (
-                        <div style={{ display: 'flex' }}>
+                        <div className="card-faces-container">
                             {selectedCard.card_faces.map((face, index) => (
-                                <div key={index} style={{ marginRight: '10px' }}>
+                                <div key={index} className="card-face">
                                     {face.image_uris?.normal && (
-                                        <img src={face.image_uris.normal} alt={face.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
+                                        <img src={face.image_uris.normal} alt={face.name} />
                                     )}
                                 </div>
                             ))}
@@ -473,7 +470,7 @@ export default function Decks() {
                     ) : (
                         <>
                             {selectedCard?.image_uris?.normal && (
-                                <img src={selectedCard.image_uris.normal} alt={selectedCard.name} style={{ maxWidth: '100%', marginBottom: '10px' }} />
+                                <img src={selectedCard.image_uris.normal} alt={selectedCard.name} />
                             )}
                         </>
                     )}
@@ -483,5 +480,6 @@ export default function Decks() {
                 </DialogActions>
             </Dialog>
         </Container>
-    );    
+    );
+      
 }

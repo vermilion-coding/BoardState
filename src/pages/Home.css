@@ -1,16 +1,60 @@
-.Home {
-    background-color: #333;
-    height: 100vh;
-    width: 100vw;
-
+/* Apply box-sizing and font-family to all elements */
+* {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-.search-bar-container {
-    padding-top: 5vh;
-    width: 30%;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items:center;
-    min-width: 200px;
+/* Set default margin and padding for body */
+body {
+    margin: 0;
+    padding: 0;
+    background-size: cover; /* Cover the entire background */
+    background-repeat: no-repeat; /* Do not repeat the background image */
+    color: #ffffff; /* Set text color to white */
+}
+
+/* Center the content in the container */
+.container {
+    margin: 1rem auto; /* Use auto for horizontal margin to center the container */
+    text-align: center;
+    backdrop-filter: blur(10px); /* Apply a blur effect to create glassmorphism */
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    border-radius: 10px; /* Add border radius for a softer look */
+    padding: 20px; /* Add padding for spacing */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+}
+
+/* Style for the date-time-box in dark mode */
+.date-time-box {
+    margin-bottom: 20px;
+    backdrop-filter: blur(7px); /* Apply blur effect to the box */
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    padding: 1.5rem;
+    border-radius: 4px;
+}
+
+/* Style for the random-card-box in dark mode */
+.random-card-box {
+    margin-bottom: 20px;
+    backdrop-filter: blur(7px); /* Apply blur effect to the box */
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    padding: 1.5rem;
+    border-radius: 4px;
+}
+
+/* Style for the random-commander-box in dark mode */
+.random-commander-box {
+    margin-bottom: 20px;
+    backdrop-filter: blur(7px); /* Apply blur effect to the box */
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    padding: 1.5rem;
+    border-radius: 4px;
+}
+
+.card-image,
+.commander-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: none; /* Remove border */
 }

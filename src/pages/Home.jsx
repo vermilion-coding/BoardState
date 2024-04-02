@@ -61,33 +61,32 @@ export default function Home() {
 
     return (
         <Container maxWidth="lg">
-            <Typography align= 'center' variant="h2" gutterBottom style={{ fontFamily: 'Arial', borderBottom: '2px solid #000', marginBottom: '20px' }}>Welcome to BoardState!</Typography>
-            
+            <Typography align= 'center' variant="h2" gutterBottom className="welcome">Welcome to BoardState!</Typography>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.paper', p: 3, borderRadius: 4, border: '2px solid #000', marginBottom: '20px' }}>
+                    <Box className="date-time-box">
                         <Typography variant="h4" gutterBottom>Current Time and Date</Typography>
                         <Typography variant="h5" gutterBottom>{currentDateTime.toLocaleString()}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.paper', p: 3, borderRadius: 4, border: '2px solid #000', marginBottom: '20px' }}>
+                    <Box className="random-card-box">
                         {isLoading && <Typography>Loading...</Typography>}
                         {randomCard && !isLoading && (
                             <Card>
                                 <CardContent>
                                     <Typography variant="h5" gutterBottom>Random Card Art: {randomCard.name}</Typography>
-                                    <img src={randomCard.image_uris.art_crop} alt={randomCard.name} style={{ maxWidth: '100%', height: 'auto' }} />
+                                    <img className="card-image" src={randomCard.image_uris.art_crop} alt={randomCard.name} style={{ maxWidth: '100%', height: 'auto' }} />
                                 </CardContent>
                             </Card>
                         )}
                     </Box>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.paper', p: 3, borderRadius: 4, border: '2px solid #000', marginBottom: '20px' }}>
+                    <Box className="random-commander-box">
                         <Typography variant="h4" gutterBottom>Random Commander</Typography>
                         {randomCommander && (
                             <Card>
                                 <CardContent>
-                                    <img src={randomCommander.image_uris.normal} alt={randomCommander.name} style={{ maxWidth: '100%', height: 'auto' }} />
+                                    <img className="commander-image" src={randomCommander.image_uris.normal} alt={randomCommander.name} style={{ maxWidth: '100%', height: 'auto' }} />
                                 </CardContent>
                             </Card>
                         )}

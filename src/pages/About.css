@@ -1,0 +1,33 @@
+.about-container {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.about-title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #333333;
+}
+
+.about-content {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.about-content a {
+    color: #5986df;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.about-content a:hover {
+    color: #0044cc;
+}

@@ -1,65 +1,49 @@
+
+
 .nav {
-  background-color: #8f8f8f;
-  color: #fff;
+  color: black; /* Slightly transparent text color */
   padding: 10px 20px;
   display: flex;
-  justify-content: flex-start; /* Align all elements to the left */
+  justify-content: flex-start;
   align-items: center;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  backdrop-filter: blur(10px); /* Apply a blur effect to the background */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Add a shadow */
 }
+
 
 .site-title {
   font-size: 1.7rem;
   text-decoration: none;
-  color: #fff;
+  color: white;
+  background-color: transparent;
 }
 
 .nav-links {
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 40px; /* Increased gap between items */
-  background-color: #8f8f8f ;
+  gap: 40px;
+  background-color: transparent; /* Transparent background */
 }
 
-.nav-link {
-  text-decoration: none;
-  color: #fff;
-  padding: 10px 20px;
-  margin-right: 20px; /* Added margin between buttons */
-  border: 1px solid transparent;
-  border-radius: 5px;
-  transition: border-color 0.3s;
-}
-
+.nav-link,
 .nav-item {
   text-decoration: none;
-  color: #fff;
+  color: white;
   padding: 10px 20px;
-  margin-right: 20px; /* Added margin between buttons */
-  border: 1px solid transparent;
   border-radius: 5px;
-  transition: border-color 0.3s;
+  transition: background-color 0.2s;
+  background-color: transparent;
 }
 
 .nav-link:hover,
-.nav-link.active {
-  color: white;
-  border-color: white;
-}
-
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
+.nav-link.active,
 .nav-item:hover,
 .nav-item.active {
-  color: white;
-  border-color: white;
+  background-color: rgba(143, 143, 143, 0.9); /* Semi-transparent background on hover */
 }
 
+.nav-link:hover,
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(143, 143, 143, 0.9);
 }
-
