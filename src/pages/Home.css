@@ -30,7 +30,7 @@ body {
     backdrop-filter: blur(7px); /* Apply blur effect to the box */
     background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
     padding: 1.5rem;
-    border-radius: 4px;
+    border-radius: 16px;
 }
 
 /* Style for the random-card-box in dark mode */
@@ -39,7 +39,7 @@ body {
     backdrop-filter: blur(7px); /* Apply blur effect to the box */
     background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
     padding: 1.5rem;
-    border-radius: 4px;
+    border-radius: 16px;
 }
 
 /* Style for the random-commander-box in dark mode */
@@ -48,7 +48,7 @@ body {
     backdrop-filter: blur(7px); /* Apply blur effect to the box */
     background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
     padding: 1.5rem;
-    border-radius: 4px;
+    border-radius: 16px;
 }
 
 .card-image,
@@ -56,5 +56,10 @@ body {
     display: block;
     max-width: 100%;
     height: auto;
-    border: none; /* Remove border */
+    border: none;
+    border-radius: 20px;
+}
+
+.card-title {
+    padding-top: 20px;
 }

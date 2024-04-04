@@ -145,16 +145,11 @@ export default function Decks() {
                 setSelectedCards(updatedSelectedCards);
             }
     
-            await selectDeck(currentDeck.id);
+            await selectDeck(currentDeck.id); // MOVE TO BEFORE NAME CHANGE
         } catch (error) {
             console.error('Error adding card to selected:', error);
         }
     };
-    
-    
-    
-    
-    
     
     const removeCardFromSelected = async (cardId) => {
         try {
@@ -386,18 +381,23 @@ export default function Decks() {
                 {showDeck ? (
                     <Grid item xs={12}>
                         <Box className="deck-container" p={2}>
-                            <Button className="new-deck-button" variant="contained" onClick={createNewDeck} fullWidth>New Deck</Button>
+                        <div className="welcome-section">
+                            <Typography variant="h5" align="center" gutterBottom>Welcome to the Deck Builder!</Typography>
+                            <Button className="new-deck-button" variant="contained" onClick={createNewDeck}>New Deck</Button>
+                        </div>
                             <Grid container spacing={2}>
                                 {decks.sort((a, b) => a.id - b.id).map(deck => (
                                     <Grid key={deck.id} item xs={12} sm={4}>
                                         <Box className="deck-box" p={2}>
-                                            <Typography variant="h6">{deck.name}</Typography>
-                                            <Box className="deck-actions" mt={2} display="flex" justifyContent="space-around">
+                                            <div>
+                                                <Typography variant="h4">{deck.name}</Typography>
+                                            </div>
+                                            <div className="deck-actions">
                                                 <Button variant="contained" onClick={() => selectDeck(deck.id)}>Edit</Button>
                                                 <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
                                                 <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
                                                 <Button variant="contained" onClick={() => exportDeck(deck.id)}>Export</Button>
-                                            </Box>
+                                            </div>
                                         </Box>
                                     </Grid>
                                 ))}
@@ -416,7 +416,6 @@ export default function Decks() {
                     <>
                         <Grid item xs={12} sm={5}>
                             <Box className="selected-cards-box" p={2}>
-                                <Typography variant="h5">Selected Cards</Typography>
                                 <Box className="selected-cards-list" style={{ height: '630px', overflowY: 'auto' }}>
                                     {selectedCards.map((card, index) => (
                                         <Box key={index} className="selected-card-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1}>
@@ -433,16 +432,25 @@ export default function Decks() {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <Box className="search-results-box" p={2}>
-                                <TextField
-                                    type="text"
-                                    placeholder="Search for cards..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    variant="outlined"
-                                    fullWidth
-                                />
+                            <Typography variant="h5" style={{ textAlign: 'center', padding: '1vw' }}>Search</Typography>
+                            <TextField
+                                type="text"
+                                placeholder="Search for cards..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                variant="outlined"
+                                fullWidth
+                                InputProps={{
+                                    style: {
+                                        color: 'white',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white
+                                        borderRadius: '2vw', // Use viewport width for border radius
+                                        padding: '1vw' // Use viewport width for padding
+                                    }
+                                }}
+                            />
+
                                 <Box className="search-results-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                                    <Typography variant="h5">Search Results</Typography>
                                     {searchResults.map(card => (
                                         <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
                                             <Typography>{card.name}</Typography>

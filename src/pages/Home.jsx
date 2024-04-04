@@ -61,7 +61,7 @@ export default function Home() {
 
     return (
         <Container maxWidth="lg">
-            <Typography align= 'center' variant="h2" gutterBottom className="welcome">Welcome to BoardState!</Typography>
+            <Typography align='center' variant="h2" gutterBottom className="welcome">Welcome to BoardState!</Typography>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                     <Box className="date-time-box">
@@ -71,12 +71,10 @@ export default function Home() {
                     <Box className="random-card-box">
                         {isLoading && <Typography>Loading...</Typography>}
                         {randomCard && !isLoading && (
-                            <Card>
-                                <CardContent>
-                                    <Typography variant="h5" gutterBottom>Random Card Art: {randomCard.name}</Typography>
-                                    <img className="card-image" src={randomCard.image_uris.art_crop} alt={randomCard.name} style={{ maxWidth: '100%', height: 'auto' }} />
-                                </CardContent>
-                            </Card>
+                            <>
+                                <img className="card-image" src={randomCard.image_uris.art_crop} alt={randomCard.name} style={{ maxWidth: '100%' }} />
+                                <Typography className="card-title" variant="h6" gutterBottom>Random Card Art: {randomCard.name}</Typography>
+                            </>
                         )}
                     </Box>
                 </Grid>
@@ -84,15 +82,14 @@ export default function Home() {
                     <Box className="random-commander-box">
                         <Typography variant="h4" gutterBottom>Random Commander</Typography>
                         {randomCommander && (
-                            <Card>
-                                <CardContent>
-                                    <img className="commander-image" src={randomCommander.image_uris.normal} alt={randomCommander.name} style={{ maxWidth: '100%', height: 'auto' }} />
-                                </CardContent>
-                            </Card>
+                            <>
+                                <img className="commander-image" src={randomCommander.image_uris.normal} alt={randomCommander.name} />
+                            </>
                         )}
                     </Box>
                 </Grid>
             </Grid>
         </Container>
     );
+    
 }

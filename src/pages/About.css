@@ -1,23 +1,23 @@
 .about-container {
-    padding: 20px;
+    padding: 2vw; /* Use viewport width as padding */
     background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    margin: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(1vw); /* Use viewport width as blur value */
+    border-radius: 2vw; /* Use viewport width as border radius */
+    margin: 2vw; /* Use viewport width as margin */
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.1); /* Use viewport width for box shadow */
 }
 
 .about-title {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+    font-size: 4vw; /* Use viewport width for font size */
+    margin-bottom: 2vw; /* Use viewport width for margin bottom */
 }
 
 .about-content {
     background-color: rgba(255, 255, 255, 0.2);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2vw; /* Use viewport width for padding */
+    border-radius: 2vw; /* Use viewport width for border radius */
+    margin-bottom: 2vw; /* Use viewport width for margin bottom */
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.1); /* Use viewport width for box shadow */
 }
 
 .about-content a {
