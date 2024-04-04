@@ -44,6 +44,9 @@ const SignUpPage = () => {
         const decksCollectionRef = collection(userRef, 'decks');
         await addDoc(decksCollectionRef, { placeholder: 'placeholder' }); // Example field, add your desired data here
 
+        const collectionsCollectionRef = collection(userRef, 'collections');
+        await addDoc(collectionsCollectionRef, {placeholder: 'placeholder'});
+
         // Show success message and redirect to home page
         alert('Sign up successful!');
         navigate('/');

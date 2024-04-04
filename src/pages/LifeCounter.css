@@ -1,0 +1,79 @@
+/* LifeCounter.css */
+.life-counter {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .player {
+    border: 2px solid #333;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s;
+  }
+  
+  .removed {
+    filter: grayscale(100%);
+  }
+  
+  .rotate {
+    transform: rotate(180deg);
+  }
+  
+  .player-info {
+    display: grid;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .player-name {
+    font-size: 24px;
+  }
+  
+  .life-total {
+    font-size: 72px;
+  }
+  
+  .counters {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .counters button {
+    font-size: 24px;
+    padding: 5px 10px;
+  }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  label {
+    font-size: 18px;
+  }
+  
+  .stats div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .stats button {
+    font-size: 24px;
+    padding: 5px 10px;
+  }
+  
+  .skull {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    z-index: 1;
+  }
+  

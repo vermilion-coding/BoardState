@@ -3,19 +3,18 @@ import axios from 'axios';
 import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
 import { getFirestore, deleteDoc, doc, setDoc, updateDoc, collection, getDoc, addDoc, getDocs } from 'firebase/firestore'; // Import Firestore functions
 import { getAuth } from 'firebase/auth';
-import './Decks.css';
+import './Collections.css'; // Update the CSS file name if necessary
 
-export default function Decks() {
-    const [selectedCards, setSelectedCards] = useState([]);
-    const [decks, setDecks] = useState([]);
-    const [currentDeck, setCurrentDeck] = useState(null);
+export default function Collections() {
+    const [selectedCollectionCards, setSelectedCollectionCards] = useState([]);
+    const [collections, setCollections] = useState([]);
+    const [currentCollection, setCurrentCollection] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedCard, setSelectedCard] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
-    const [showDeck, setShowDeck] = useState(true);
+    const [showCollection, setShowCollection] = useState(true);
     const [db, setDb] = useState(null); // Firestore instance
-    
 
     useEffect(() => {
         const auth = getAuth();
@@ -46,35 +45,28 @@ export default function Decks() {
         }
     }, [searchQuery]);
 
-    useEffect(() => {
-        document.title = currentDeck ? `Deck: ${currentDeck.name}` : 'BoardState';
-    }, [currentDeck]);
-
-
-    const selectDeck = async (deckId) => {
+    const selectCollection = async (collectionId) => {
         const auth = getAuth();
         const user = auth.currentUser;
         if (!user) {
             console.error('User not logged in');
             return;
         }
-    
+
         try {
             const db = getFirestore();
             if (!db) {
                 console.error('Firestore instance not available');
                 return;
             }
-    
+
             const userDocRef = doc(db, 'users', user.uid);
-            
-            const decksCollectionRef = collection(userDocRef, 'decks');
-            
-            const deckRef = doc(decksCollectionRef, deckId);            
-    
-            const cardsCollectionRef = collection(deckRef, 'cards');
+            const collectionsCollectionRef = collection(userDocRef, 'collections');
+            const collectionRef = doc(collectionsCollectionRef, collectionId);
+
+            const cardsCollectionRef = collection(collectionRef, 'cards');
             const cardsSnapshot = await getDocs(cardsCollectionRef);
-    
+
             const selectedCards = cardsSnapshot.docs.map(cardDoc => {
                 const cardData = cardDoc.data();
                 return {
@@ -83,19 +75,17 @@ export default function Decks() {
                     counters: cardData.counters,
                 };
             });
-            
-            // Update the state with the selected cards
-            setSelectedCards(selectedCards);
-            setCurrentDeck(deckRef);
-            setShowDeck(false);
-        } catch (error) {
-            console.error('Error getting selected cards:', error);
-        }
-        
-    };
-    
 
-    const addCardToSelected = async (card) => {
+            setSelectedCollectionCards(selectedCards);
+            setCurrentCollection(collectionRef);
+            setShowCollection(false);
+        } catch (error) {
+            console.error('Error getting selected collection cards:', error);
+        }
+
+    };
+
+    const addCardToSelectedCollection = async (card) => {
         try {
             const db = getFirestore();
             const user = getAuth().currentUser;
@@ -103,56 +93,50 @@ export default function Decks() {
                 console.error('Firestore instance not available or user not logged in');
                 return;
             }
-    
+
             const userDocRef = doc(db, 'users', user.uid);
-            const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
-    
-            const selectedCardsRef = collection(deckRef, 'cards');
-            const cardDocRef = doc(selectedCardsRef, card.id);
-    
+            const collectionRef = doc(collection(userDocRef, 'collections'), currentCollection.id);
+
+            const selectedCollectionCardsRef = collection(collectionRef, 'cards');
+            const cardDocRef = doc(selectedCollectionCardsRef, card.id);
+
             const cardDocSnapshot = await getDoc(cardDocRef);
             if (!cardDocSnapshot.exists()) {
-                // Card doesn't exist in the deck, create a new instance
                 const cardData = {
                     name: card.name,
                     counters: 1
                 };
 
-                // Check if the card has multiple faces
                 if (card.card_faces && card.card_faces.length > 1) {
                     cardData.image_uris = card.card_faces.map(face => ({ normal: face.image_uris.normal }));
                 } else {
                     cardData.image_uris = { normal: card.image_uris.normal };
                 }
 
-    
-                // Check if the 'cards' subcollection exists and create the card document
-                const selectedCardsCollection = await getDocs(selectedCardsRef);
-                if (selectedCardsCollection.empty) {
-                    await setDoc(deckRef, { name: currentDeck.name || 'Untitled Deck', cards: [] }); // Create the 'cards' subcollection if it doesn't exist
+                const selectedCollectionCardsCollection = await getDocs(selectedCollectionCardsRef);
+                if (selectedCollectionCardsCollection.empty) {
+                    await setDoc(collectionRef, { name: currentCollection.name || 'Untitled Collection', cards: [] });
                 }
-    
-                await setDoc(cardDocRef, cardData); // Add the card to the 'cards' subcollection
+
+                await setDoc(cardDocRef, cardData);
             } else {
-                // Card already exists in the deck, update the counters
                 await updateDoc(cardDocRef, {
                     counters: cardDocSnapshot.data().counters + 1
                 });
             }
-    
-            // Update selectedCards state only if the card was added
+
             if (!cardDocSnapshot.exists()) {
-                const updatedSelectedCards = [...selectedCards, { ...card, counters: 1 }];
-                setSelectedCards(updatedSelectedCards);
+                const updatedSelectedCollectionCards = [...selectedCollectionCards, { ...card, counters: 1 }];
+                setSelectedCollectionCards(updatedSelectedCollectionCards);
             }
-    
-            await selectDeck(currentDeck.id); // MOVE TO BEFORE NAME CHANGE
+
+            await selectCollection(currentCollection.id);
         } catch (error) {
-            console.error('Error adding card to selected:', error);
+            console.error('Error adding card to selected collection:', error);
         }
     };
-    
-    const removeCardFromSelected = async (cardId) => {
+
+    const removeCardFromSelectedCollection = async (cardId) => {
         try {
             const db = getFirestore();
             const user = getAuth().currentUser;
@@ -160,13 +144,13 @@ export default function Decks() {
                 console.error('Firestore instance not available or user not logged in');
                 return;
             }
-    
+
             const userDocRef = doc(db, 'users', user.uid);
-            const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
-    
-            const selectedCardsRef = collection(deckRef, 'cards');
-            const cardDoc = doc(selectedCardsRef, cardId);
-    
+            const collectionRef = doc(collection(userDocRef, 'collections'), currentCollection.id);
+
+            const selectedCollectionCardsRef = collection(collectionRef, 'cards');
+            const cardDoc = doc(selectedCollectionCardsRef, cardId);
+
             const cardDocSnapshot = await getDoc(cardDoc);
             if (cardDocSnapshot.exists()) {
                 const currentCount = cardDocSnapshot.data().counters;
@@ -178,90 +162,82 @@ export default function Decks() {
                     await deleteDoc(cardDoc);
                 }
             }
-            await selectDeck(currentDeck.id);
+            await selectCollection(currentCollection.id);
 
         } catch (error) {
-            console.error('Error removing card from selected:', error);
+            console.error('Error removing card from selected collection:', error);
         }
     };
-    
 
-    const createNewDeck = async () => {
+    const createNewCollection = async () => {
         const auth = getAuth();
         const user = auth.currentUser;
-    
+
         if (!user) {
-            // User not logged in, handle this case accordingly
             return;
         }
-    
-        const db = getFirestore(); // Assuming Firestore instance is initialized somewhere
+
+        const db = getFirestore();
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnapshot = await getDoc(userDocRef);
-    
+
         if (!userDocSnapshot.exists()) {
-            // User document does not exist, handle this case accordingly
             return;
         }
-    
-        const newDeckRef = await addDoc(collection(userDocRef, 'decks'), {
-            name: `Untitled Deck`,
+
+        const newCollectionRef = await addDoc(collection(userDocRef, 'collections'), {
+            name: `Untitled Binder`,
         });
-    
 
-    
-        const newDeck = {
-            id: newDeckRef.id,
-            name: `Untitled Deck`,
+        const newCollection = {
+            id: newCollectionRef.id,
+            name: `Untitled Binder`,
         };
-    
-        const updatedDecks = [...decks, newDeck];
-        setDecks(updatedDecks);
-        setCurrentDeck(newDeck);
-    };
-      
 
-    const deleteDeck = async (deckId) => {
-        const updatedDecks = decks.filter(deck => deck.id !== deckId);
-        setDecks(updatedDecks);
-        setCurrentDeck(null);
-        setSelectedCards([]);
-    
-        // Delete the deck document in Firestore
+        const updatedCollections = [...collections, newCollection];
+        setCollections(updatedCollections);
+        setCurrentCollection(newCollection);
+    };
+
+
+    const deleteCollection = async (collectionId) => {
+        const updatedCollections = collections.filter(collection => collection.id !== collectionId);
+        setCollections(updatedCollections);
+        setCurrentCollection(null);
+        setSelectedCollectionCards([]);
+
         const auth = getAuth();
         const user = auth.currentUser;
         if (user) {
             const db = getFirestore();
             const userDocRef = doc(db, 'users', user.uid);
-            const deckRef = doc(collection(userDocRef, 'decks'), deckId);
-            await deleteDoc(deckRef);
+            const collectionRef = doc(collection(userDocRef, 'collections'), collectionId);
+            await deleteDoc(collectionRef);
         }
     };
-    
 
-    const renameDeck = async (deckId) => {
-        const newName = prompt("Enter a new name for the deck:", decks.find(deck => deck.id === deckId).name);
+    const renameCollection = async (collectionId) => {
+        const newName = prompt("Enter a new name for the collection:", collections.find(collection => collection.id === collectionId).name);
         if (newName !== null) {
-            const updatedDecks = decks.map(deck =>
-                deck.id === deckId ? { ...deck, name: newName } : deck
+            const updatedCollections = collections.map(collection =>
+                collection.id === collectionId ? { ...collection, name: newName } : collection
             );
-            setDecks(updatedDecks);
-            if (currentDeck && currentDeck.id === deckId) {
-                setCurrentDeck({ ...currentDeck, name: newName });
+            setCollections(updatedCollections);
+            if (currentCollection && currentCollection.id === collectionId) {
+                setCurrentCollection({ ...currentCollection, name: newName });
             }
-    
-            // Update the deck's name in Firestore
+
             const auth = getAuth();
             const user = auth.currentUser;
             if (user) {
                 const db = getFirestore();
                 const userDocRef = doc(db, 'users', user.uid);
-                const deckRef = doc(collection(userDocRef, 'decks'), deckId);
-                await updateDoc(deckRef, { name: newName });
+                const collectionRef = doc(collection(userDocRef, 'collections'), collectionId);
+                await updateDoc(collectionRef, { name: newName });
             }
         }
     };
-    
+
 
     const handleCardNameClick = (card) => {
         setSelectedCard(card);
@@ -272,7 +248,7 @@ export default function Decks() {
         setOpenDialog(false);
     };
 
-    const exportDeck = async (deckId) => {
+    const exportCollection = async (collectionId) => {
         try {
             const db = getFirestore();
             const user = getAuth().currentUser;
@@ -280,124 +256,118 @@ export default function Decks() {
                 console.error('Firestore instance not available or user not logged in');
                 return;
             }
-    
+
             const userDocRef = doc(db, 'users', user.uid);
-            const deckRef = doc(collection(userDocRef, 'decks'), deckId);
-            const deckDoc = await getDoc(deckRef);
-    
-            if (!deckDoc.exists()) {
-                console.error('Deck not found');
+            const collectionRef = doc(collection(userDocRef, 'collections'), collectionId);
+            const collectionDoc = await getDoc(collectionRef);
+
+            if (!collectionDoc.exists()) {
+                console.error('Collection not found');
                 return;
             }
-    
-            const cardsCollectionRef = collection(deckRef, 'cards');
+
+            const cardsCollectionRef = collection(collectionRef, 'cards');
             const cardsSnapshot = await getDocs(cardsCollectionRef);
-    
-            const deckCardCounts = {};
+
+            const collectionCardCounts = {};
             cardsSnapshot.forEach(cardDoc => {
                 const cardData = cardDoc.data();
-                deckCardCounts[cardDoc.id] = cardData.counters;
+                collectionCardCounts[cardDoc.id] = cardData.counters;
             });
-    
-            const deckList = await Promise.all(cardsSnapshot.docs.map(async cardDoc => {
+
+            const collectionList = await Promise.all(cardsSnapshot.docs.map(async cardDoc => {
                 const cardData = cardDoc.data();
                 const cardName = cardData.name;
-                return `${deckCardCounts[cardDoc.id] || 1}x ${cardName}`;
+                return `${collectionCardCounts[cardDoc.id] || 1}x ${cardName}`;
             }));
-    
-            const blob = new Blob([deckList.join('\n')], { type: 'text/plain' });
+
+            const blob = new Blob([collectionList.join('\n')], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${deckDoc.data().name}_Decklist.txt`;
+            a.download = `${collectionDoc.data().name}_Collection.txt`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error('Error exporting deck:', error);
+            console.error('Error exporting collection:', error);
         }
     };
 
     const handleBackButtonClick = () => {
-        setShowDeck(true);
-        setCurrentDeck(null);
-        setSelectedCards([]);
+        setShowCollection(true);
+        setCurrentCollection(null);
+        setSelectedCollectionCards([]);
     };
 
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
-    
-        const fetchDecks = async () => {
+
+        const fetchCollections = async () => {
             if (!user || !db) {
                 return;
             }
-        
+
             const userDocRef = doc(db, 'users', user.uid);
             const userDocSnapshot = await getDoc(userDocRef);
-        
+
             if (!userDocSnapshot.exists()) {
                 return;
             }
-        
-            const userDecksRef = collection(userDocRef, 'decks');
-            const userDecksSnapshot = await getDocs(userDecksRef);
-        
-            const userDecks = await Promise.all(userDecksSnapshot.docs.map(async doc => {
-                const deckData = doc.data();
-        
-                // Query the cards collection for each deck
-                const cardsSnapshot = await getDocs(collection(userDecksRef, doc.id, 'cards'));
+
+            const userCollectionsRef = collection(userDocRef, 'collections');
+            const userCollectionsSnapshot = await getDocs(userCollectionsRef);
+
+            const userCollections = await Promise.all(userCollectionsSnapshot.docs.map(async doc => {
+                const collectionData = doc.data();
+
+                const cardsSnapshot = await getDocs(collection(userCollectionsRef, doc.id, 'cards'));
                 const cards = cardsSnapshot.docs.map(cardDoc => cardDoc.data());
-        
+
                 return {
                     id: doc.id,
-                    ...deckData,
-                    cards: cards // Include the fetched cards in the deck object
+                    ...collectionData,
+                    cards: cards
                 };
             }));
-        
-            setDecks(userDecks);
+
+            setCollections(userCollections);
         };
-        
-        fetchDecks(); // Call fetchDecks initially
-        
-        // Call fetchDecks whenever addCardToSelected or removeCardFromSelected is called
+
+        fetchCollections();
+
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                fetchDecks();
+                fetchCollections();
             }
         });
-    
-        // Cleanup function
+
         return () => unsubscribe();
-    }, [db, addCardToSelected, removeCardFromSelected]);
-
-
-    
+    }, [db, addCardToSelectedCollection, removeCardFromSelectedCollection]);
 
     return (
         <Container maxWidth="lg">
             <Grid container spacing={2}>
-                {showDeck ? (
+                {showCollection ? (
                     <Grid item xs={12}>
-                        <Box className="deck-container" p={2}>
-                        <div className="welcome-section">
-                            <Typography variant="h5" align="center" gutterBottom>Welcome to the Deck Builder!</Typography>
-                            <Button className="new-deck-button" variant="contained" onClick={createNewDeck}>New Deck</Button>
-                        </div>
+                        <Box className="collection-container" p={2}>
+                            <div className="welcome-section">
+                                <Typography variant="h5" align="center" gutterBottom>Welcome to the Collection Manager!</Typography>
+                                <Button className="new-collection-button" variant="contained" onClick={createNewCollection}>New Binder</Button>
+                            </div>
                             <Grid container spacing={2}>
-                                {decks.sort((a, b) => a.id - b.id).map(deck => (
-                                    <Grid key={deck.id} item xs={12} sm={4}>
-                                        <Box className="deck-box" p={2}>
+                                {collections.sort((a, b) => a.id - b.id).map(collection => (
+                                    <Grid key={collection.id} item xs={12} sm={4}>
+                                        <Box className="collection-box" p={2}>
                                             <div>
-                                                <Typography variant="h4">{deck.name}</Typography>
+                                                <Typography variant="h4">{collection.name}</Typography>
                                             </div>
-                                            <div className="deck-actions">
-                                                <Button variant="contained" onClick={() => selectDeck(deck.id)}>Edit</Button>
-                                                <Button variant="contained" onClick={() => deleteDeck(deck.id)}>Delete</Button>
-                                                <Button variant="contained" onClick={() => renameDeck(deck.id)}>Rename</Button>
-                                                <Button variant="contained" onClick={() => exportDeck(deck.id)}>Export</Button>
+                                            <div className="collection-actions">
+                                                <Button variant="contained" onClick={() => selectCollection(collection.id)}>Edit</Button>
+                                                <Button variant="contained" onClick={() => deleteCollection(collection.id)}>Delete</Button>
+                                                <Button variant="contained" onClick={() => renameCollection(collection.id)}>Rename</Button>
+                                                <Button variant="contained" onClick={() => exportCollection(collection.id)}>Export</Button>
                                             </div>
                                         </Box>
                                     </Grid>
@@ -407,24 +377,24 @@ export default function Decks() {
                     </Grid>
                 ) : (
                     <Grid item xs={12} sm={12}>
-                        <Box className="current-deck-box" p={2} display="flex" alignItems="center">
+                        <Box className="current-collection-box" p={2} display="flex" alignItems="center">
                             <Button variant="contained" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={handleBackButtonClick}>Back</Button>
-                            <Typography variant="h4" style={{ marginLeft: 'auto' }}>{currentDeck.name}</Typography>
+                            <Typography variant="h4" style={{ marginLeft: 'auto' }}>{currentCollection.name}</Typography>
                         </Box>
                     </Grid>
                 )}
-                {!showDeck && (
+                {!showCollection && (
                     <>
                         <Grid item xs={12} sm={5}>
                             <Box className="selected-cards-box" p={2}>
                                 <Box className="selected-cards-list" style={{ height: '630px', overflowY: 'auto' }}>
-                                    {selectedCards.map((card, index) => (
+                                    {selectedCollectionCards.map((card, index) => (
                                         <Box key={index} className="selected-card-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1}>
                                             <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                             <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                             <div>
-                                                <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                                <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                                <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelectedCollection(card)}>+</Button>
+                                                <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelectedCollection(card.id)}>-</Button>
                                             </div>
                                         </Box>
                                     ))}
@@ -433,29 +403,29 @@ export default function Decks() {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <Box className="search-results-box" p={2}>
-                            <Typography variant="h5" style={{ textAlign: 'center', padding: '1vw' }}>Search</Typography>
-                            <TextField
-                                type="text"
-                                placeholder="Search for cards..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                variant="outlined"
-                                fullWidth
-                                InputProps={{
-                                    style: {
-                                        color: 'white',
-                                        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white
-                                        borderRadius: '2vw', // Use viewport width for border radius
-                                        padding: '1vw' // Use viewport width for padding
-                                    }
-                                }}
-                            />
+                                <Typography variant="h5" style={{ textAlign: 'center', padding: '1vw' }}>Search</Typography>
+                                <TextField
+                                    type="text"
+                                    placeholder="Search for cards..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    variant="outlined"
+                                    fullWidth
+                                    InputProps={{
+                                        style: {
+                                            color: 'white',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white
+                                            borderRadius: '2vw', // Use viewport width for border radius
+                                            padding: '1vw' // Use viewport width for padding
+                                        }
+                                    }}
+                                />
 
                                 <Box className="search-results-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                                     {searchResults.map(card => (
                                         <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
                                             <Typography>{card.name}</Typography>
-                                            <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "14px"}} onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }}>Add</Button>
+                                            <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "14px"}} onClick={(e) => { e.stopPropagation(); addCardToSelectedCollection(card) }}>Add</Button>
                                         </Box>
                                     ))}
                                 </Box>
@@ -490,5 +460,4 @@ export default function Decks() {
             </Dialog>
         </Container>
     );
-      
 }
