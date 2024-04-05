@@ -81,6 +81,7 @@ export default function Decks() {
                     id: cardDoc.id,
                     name: cardData.name,
                     counters: cardData.counters,
+                    type_line: cardData.type_line
                 };
             });
             
@@ -115,7 +116,10 @@ export default function Decks() {
                 // Card doesn't exist in the deck, create a new instance
                 const cardData = {
                     name: card.name,
-                    counters: 1
+                    counters: 1,
+                    cmc: card.cmc,
+                    color_identity: card.color_identity,
+                    type_line: card.type_line
                 };
 
                 // Check if the card has multiple faces
@@ -373,19 +377,16 @@ export default function Decks() {
         return () => unsubscribe();
     }, [db, addCardToSelected, removeCardFromSelected]);
 
-
-    
-
     return (
         <Container maxWidth="lg">
             <Grid container spacing={2}>
                 {showDeck ? (
                     <Grid item xs={12}>
                         <Box className="deck-container" p={2}>
-                        <div className="welcome-section">
-                            <Typography variant="h5" align="center" gutterBottom>Welcome to the Deck Builder!</Typography>
-                            <Button className="new-deck-button" variant="contained" onClick={createNewDeck}>New Deck</Button>
-                        </div>
+                            <div className="welcome-section">
+                                <Typography variant="h5" align="center" gutterBottom>Welcome to the Deck Builder!</Typography>
+                                <Button className="new-deck-button" variant="contained" onClick={createNewDeck}>New Deck</Button>
+                            </div>
                             <Grid container spacing={2}>
                                 {decks.sort((a, b) => a.id - b.id).map(deck => (
                                     <Grid key={deck.id} item xs={12} sm={4}>
@@ -407,33 +408,18 @@ export default function Decks() {
                     </Grid>
                 ) : (
                     <Grid item xs={12} sm={12}>
-                        <Box className="current-deck-box" p={2} display="flex" alignItems="center">
+                        <Box className="current-deck-box" p={2} style={{ position: 'relative' }}>
                             <Button variant="contained" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={handleBackButtonClick}>Back</Button>
                             <Typography variant="h4" style={{ marginLeft: 'auto' }}>{currentDeck.name}</Typography>
-                        </Box>
-                    </Grid>
-                )}
-                {!showDeck && (
-                    <>
-                        <Grid item xs={12} sm={5}>
-                            <Box className="selected-cards-box" p={2}>
-                                <Box className="selected-cards-list" style={{ height: '630px', overflowY: 'auto' }}>
-                                    {selectedCards.map((card, index) => (
-                                        <Box key={index} className="selected-card-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1}>
-                                            <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
-                                            <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
-                                            <div>
-                                                <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                                <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
-                                            </div>
+                            <Box className="search-results-box" p={2} style={{position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)', width: '50%', maxWidth: '500px', display: searchResults.length > 0 ? 'block' : 'none', backgroundColor: 'rgba(255, 255, 255)', borderRadius: '10px', padding: '10px', zIndex: 1}}>                                <Box className="search-results-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                    {searchResults.map(card => (
+                                        <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
+                                            <Typography style={{color: 'black'}}>{card.name}</Typography>
+                                            <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "14px"}} onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }}>Add</Button>
                                         </Box>
                                     ))}
                                 </Box>
                             </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Box className="search-results-box" p={2}>
-                            <Typography variant="h5" style={{ textAlign: 'center', padding: '1vw' }}>Search</Typography>
                             <TextField
                                 type="text"
                                 placeholder="Search for cards..."
@@ -446,23 +432,115 @@ export default function Decks() {
                                         color: 'white',
                                         backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white
                                         borderRadius: '2vw', // Use viewport width for border radius
-                                        padding: '1vw' // Use viewport width for padding
+                                        paddingLeft: '2vw',
+                                        marginLeft: '2vw',
+                                        maxWidth: '51vw'
                                     }
                                 }}
                             />
-
-                                <Box className="search-results-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                                    {searchResults.map(card => (
-                                        <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
-                                            <Typography>{card.name}</Typography>
-                                            <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "14px"}} onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }}>Add</Button>
-                                        </Box>
-                                    ))}
-                                </Box>
-                            </Box>
-                        </Grid>
-                    </>
+                        </Box>
+                    </Grid>
                 )}
+                <Grid item xs={12} sm={5} style={{display: !showDeck ? 'block' : 'none'}}>                    
+                <Box className="selected-cards-box" p={2} >
+                    <Box className="selected-cards-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px' }}>
+                        {/* Column for Creature */}
+                        <Box className="selected-card-column creature-column">
+                            <Typography variant="h6">Creature</Typography>
+                            {selectedCards.filter(card => card.type_line.includes("Creature")).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        {/* Column for Instant */}
+                        <Box className="selected-card-column instant-column">
+                            <Typography variant="h6">Instant</Typography>
+                            {selectedCards.filter(card => card.type_line.includes("Instant")).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        {/* Columns for Sorcery, Artifact, Enchantment, Land */}
+                        <Box className="selected-card-column sorcery-column">
+                            <Typography variant="h6">Sorcery</Typography>
+                            {selectedCards.filter(card => card.type_line.includes("Sorcery")).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        <Box className="selected-card-column artifact-column">
+                            <Typography variant="h6">Artifact</Typography>
+                            {selectedCards.filter(card => card.type_line.includes("Artifact")).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        <Box className="selected-card-column enchantment-column">
+                            <Typography variant="h6">Enchantment</Typography>
+                            {selectedCards.filter(card => card.type_line.includes("Enchantment")).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        <Box className="selected-card-column land-column">
+                            <Typography variant="h6">Land</Typography>
+                            {selectedCards.filter(card => card.type_line.includes("Land")).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        <Box className="selected-card-column other-column">
+                            <Typography variant="h6">Other</Typography>
+                            {selectedCards.filter(card => !["Creature", "Instant", "Sorcery", "Artifact", "Enchantment", "Land"].some(type => card.type_line.includes(type))).map((card, index) => (
+                                <Box key={index} className="selected-card-item">
+                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                    <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
+                                    <div>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                    </div>
+                                </Box>
+                            ))}
+                        </Box>
+                        </Box>
+                    </Box>
+                </Grid>
             </Grid>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogContent>
@@ -490,5 +568,6 @@ export default function Decks() {
             </Dialog>
         </Container>
     );
-      
+    
+    
 }

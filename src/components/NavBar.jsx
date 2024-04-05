@@ -23,7 +23,7 @@ export default function NavBar({ user }) {
   return (
     <nav className="nav">
       <Link to="/" className="site-title">
-        BoardState
+        <img src="src/assets/boardstate-logo.png" alt="BoardState Logo" style={{width:'120px', height:'120px'}}/>
       </Link>
       <ul className="nav-links">
         {user ? (

@@ -37,27 +37,28 @@
     background-color: #0044cc; /* Darker background color on hover */
 }
 
-
 .deck-box {
     margin-bottom: 1vw; /* Use viewport width for margin bottom */
     padding: 1vw; /* Use viewport width for padding */
-    display: flex;
-    flex-direction: row; /* Horizontal layout */
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Define column width and make them stack if necessary */
+    gap: 10px; /* Add gap between columns */
+    border: 1px solid #ccc; /* Define border */
     border-radius: 1vw; /* Use viewport width for border radius */
-    box-shadow: rgba(0, 0, 0, 0.17) 0px -1vw 1.25vw 0px inset, rgba(0, 0, 0, 0.15) 0px -1.5vw 1.25vw 0px inset, rgba(0, 0, 0, 0.1) 0px -3.25vw 1.625vw 0px inset, rgba(0, 0, 0, 0.06) 0px 0.25vw 0.125vw, rgba(0, 0, 0, 0.09) 0px 0.5vw 0.25vw, rgba(0, 0, 0, 0.09) 0px 1vw 0.5vw, rgba(0, 0, 0, 0.09) 0px 2vw 1vw, rgba(0, 0, 0, 0.09) 0px 4vw 2vw;
-    overflow: hidden; /* Hide overflowing content */
-    max-height: 20vw; /* Maximum height for the entire deck box */
     background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
 }
 
 .deck-box > div {
-    flex: 1; /* Each section takes up equal space */
     padding: 1vw; /* Use viewport width for padding */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 3vw; /* Minimum height for each section */
+    border-right: 1px solid #ccc; /* Define right border for each column */
+}
+
+.deck-box > div:last-child {
+    border-right: none; /* Remove right border for the last column */
 }
 
 .deck-box .deck-actions {
@@ -84,13 +85,9 @@
     transition: background-color 0.3s, color 0.3s; /* Smooth transition for background and text color */
 }
 
-
 .deck-box .deck-actions button:hover {
     background-color: #0044cc; /* Darker background color on hover */
 }
-
-
-
 
 .deck-actions {
     margin-top: 1vw; /* Use viewport width for margin top */
@@ -112,23 +109,34 @@
     padding: 2vw; /* Use viewport width for padding */
     margin-top: 0;
     margin-left: 2vw; /* Use viewport width for margin left */
+    width: fit-content;
+}
+.selected-cards-list {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(150px, 1fr));
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 2vw;
+    padding: 1vw;
 }
 
-.selected-cards-list {
-    height: 63vh; /* Use 63% of viewport height */
-    overflow-y: auto;
+.selected-card-column {
+    padding: 0.5vw; /* Adjust padding as needed */
+    border-right: 1px solid #ccc; /* Right border for each column */
+}
+
+.selected-card-column:first-child {
+    border-left: 1px solid #ccc; /* Left border for the first column */
 }
 
 .selected-card-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 1vw 0; /* Use viewport width for margin */
-    padding: 0.5vw; /* Use viewport width for padding */
-    border: 1px solid #ccc;
-    border-radius: 2vw; /* Use viewport width for border radius */
-    background-color: 'rgba(255, 255, 255, 0.3)',
+    padding: 0.5vw; /* Adjust padding as needed */
+    border-bottom: 1px solid #ccc; /* Bottom border for each item */
 }
+
+
+
+
 
 .search-results-box {
     border: 1px solid #ccc;
@@ -152,7 +160,7 @@
     border: 1px solid #ccc;
     border-radius: 2vw; /* Use viewport width for border radius */
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.3),
+    background-color: rgba(255, 255, 255, 0.3);
 }
 
 .card-faces-container {
