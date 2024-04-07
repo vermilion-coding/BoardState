@@ -452,8 +452,8 @@ export default function Decks() {
                                     <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}
@@ -466,8 +466,8 @@ export default function Decks() {
                                     <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}
@@ -480,8 +480,8 @@ export default function Decks() {
                                     <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}
@@ -493,8 +493,8 @@ export default function Decks() {
                                     <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}
@@ -506,8 +506,8 @@ export default function Decks() {
                                     <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}
@@ -519,8 +519,8 @@ export default function Decks() {
                                     <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}
@@ -529,11 +529,11 @@ export default function Decks() {
                             <Typography variant="h6">Other</Typography>
                             {selectedCards.filter(card => !["Creature", "Instant", "Sorcery", "Artifact", "Enchantment", "Land"].some(type => card.type_line.includes(type))).map((card, index) => (
                                 <Box key={index} className="selected-card-item">
-                                    <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
                                     <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                     <div>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => addCardToSelected(card)}>+</Button>
-                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => addCardToSelected(card)}>+</Button>
+                                        <Typography>{card.counters ? `${card.counters}x` : '0x'}</Typography>
+                                        <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "18px", maxWidth: '30px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}} onClick={() => removeCardFromSelected(card.id)}>-</Button>
                                     </div>
                                 </Box>
                             ))}

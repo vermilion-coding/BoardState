@@ -109,7 +109,7 @@
     padding: 2vw; /* Use viewport width for padding */
     margin-top: 0;
     margin-left: 2vw; /* Use viewport width for margin left */
-    width: fit-content;
+    width:70vw;
 }
 .selected-cards-list {
     display: grid;
@@ -117,7 +117,7 @@
     gap: 10px;
     border: 1px solid #ccc;
     border-radius: 2vw;
-    padding: 1vw;
+    padding: 100vw;
 }
 
 .selected-card-column {
@@ -132,6 +132,9 @@
 .selected-card-item {
     padding: 0.5vw; /* Adjust padding as needed */
     border-bottom: 1px solid #ccc; /* Bottom border for each item */
+    max-height: 70px;
+    max-width: 200px;
+    overflow:hidden;
 }
 
 
