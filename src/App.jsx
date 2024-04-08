@@ -6,7 +6,6 @@ import Decks from './pages/Decks';
 import About from './pages/About';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Collections from './pages/Collections';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -47,7 +46,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/decks" element={<Decks />} />
-        <Route path="/collections" element={<Collections />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/lifecounter" element={<LifeCounter />} />

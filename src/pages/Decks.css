@@ -104,38 +104,38 @@
 }
 
 .selected-cards-box {
-    border: 1px solid #ccc;
-    border-radius: 2vw; /* Use viewport width for border radius */
-    padding: 2vw; /* Use viewport width for padding */
-    margin-top: 0;
-    margin-left: 2vw; /* Use viewport width for margin left */
-    width:70vw;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    max-height: calc(100vh - 64px); /* Subtract any header/footer height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 16px; /* Padding around the box */
 }
+
 .selected-cards-list {
     display: grid;
-    grid-template-columns: repeat(7, minmax(150px, 1fr));
-    gap: 10px;
-    border: 1px solid #ccc;
-    border-radius: 2vw;
-    padding: 100vw;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Grid layout with minimum column width of 200px */
+    gap: 10px; /* Gap between grid items */
+    overflow: hidden; /* Hide any overflowing content */
 }
 
 .selected-card-column {
-    padding: 0.5vw; /* Adjust padding as needed */
-    border-right: 1px solid #ccc; /* Right border for each column */
+    white-space: normal; /* Reset white-space */
 }
+
+/* Adjust the max-width as needed */
+.selected-card-item {
+    max-width: 400px; /* Maximum width for each card item */
+    word-wrap: break-word; /* Allow long words to wrap */
+}
+
+
 
 .selected-card-column:first-child {
     border-left: 1px solid #ccc; /* Left border for the first column */
 }
 
-.selected-card-item {
-    padding: 0.5vw; /* Adjust padding as needed */
-    border-bottom: 1px solid #ccc; /* Bottom border for each item */
-    max-height: 70px;
-    max-width: 200px;
-    overflow:hidden;
-}
 
 
 

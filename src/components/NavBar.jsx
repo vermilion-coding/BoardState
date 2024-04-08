@@ -33,7 +33,6 @@ export default function NavBar({ user }) {
               Log Out
             </li>
             <CustomLink to="/decks">Decks</CustomLink>
-            <CustomLink to="/collections">Collections</CustomLink>
             <CustomLink to="/lifecounter">Life Counter</CustomLink>
           </>
         ) : (

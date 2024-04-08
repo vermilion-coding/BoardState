@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Grid, Box, TextField, Button, Typography, Dialog, DialogContent, DialogActions } from '@mui/material';
-import { getFirestore, deleteDoc, doc, setDoc, updateDoc, collection, getDoc, addDoc, getDocs } from 'firebase/firestore'; // Import Firestore functions
+import { getFirestore, deleteDoc, doc, setDoc, updateDoc, collection, getDoc, addDoc, getDocs, onSnapshot } from 'firebase/firestore'; // Import Firestore functions
 import { getAuth } from 'firebase/auth';
 import './Decks.css';
 
@@ -51,31 +51,37 @@ export default function Decks() {
     }, [currentDeck]);
 
 
-    const selectDeck = async (deckId) => {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (!user) {
-            console.error('User not logged in');
+const selectDeck = async (deckId) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+        console.error('User not logged in');
+        return;
+    }
+
+    try {
+        const db = getFirestore();
+        if (!db) {
+            console.error('Firestore instance not available');
             return;
         }
-    
-        try {
-            const db = getFirestore();
-            if (!db) {
-                console.error('Firestore instance not available');
-                return;
-            }
-    
-            const userDocRef = doc(db, 'users', user.uid);
-            
-            const decksCollectionRef = collection(userDocRef, 'decks');
-            
-            const deckRef = doc(decksCollectionRef, deckId);            
-    
-            const cardsCollectionRef = collection(deckRef, 'cards');
-            const cardsSnapshot = await getDocs(cardsCollectionRef);
-    
-            const selectedCards = cardsSnapshot.docs.map(cardDoc => {
+
+        const userDocRef = doc(db, 'users', user.uid);
+
+        // Fetch only the deck metadata (name, etc.) instead of the full cards
+        const deckSnapshot = await getDoc(doc(userDocRef, 'decks', deckId));
+        if (!deckSnapshot.exists()) {
+            console.error('Deck not found');
+            return;
+        }
+
+        // Update the state with the selected deck metadata
+        setCurrentDeck({ id: deckSnapshot.id, ...deckSnapshot.data() });
+
+        // Use onSnapshot to listen for changes to the cards collection
+        const cardsCollectionRef = collection(userDocRef, 'decks', deckId, 'cards');
+        const unsubscribe = onSnapshot(cardsCollectionRef, (snapshot) => {
+            const selectedCards = snapshot.docs.map(cardDoc => {
                 const cardData = cardDoc.data();
                 return {
                     id: cardDoc.id,
@@ -84,16 +90,19 @@ export default function Decks() {
                     type_line: cardData.type_line
                 };
             });
-            
-            // Update the state with the selected cards
             setSelectedCards(selectedCards);
-            setCurrentDeck(deckRef);
-            setShowDeck(false);
-        } catch (error) {
-            console.error('Error getting selected cards:', error);
-        }
-        
-    };
+        });
+
+        // Hide the deck view
+        setShowDeck(false);
+
+        // Cleanup the listener when the component unmounts or a new deck is selected
+        return () => unsubscribe();
+    } catch (error) {
+        console.error('Error selecting deck:', error);
+    }
+};
+
     
 
     const addCardToSelected = async (card) => {
