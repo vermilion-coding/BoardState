@@ -50,11 +50,6 @@ export default function Decks() {
         }
     }, [searchQuery]);
 
-    useEffect(() => {
-        document.title = currentDeck ? `Deck: ${currentDeck.name}` : 'BoardState';
-    }, [currentDeck]);
-
-
     const selectDeck = async (deckId) => {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -215,9 +210,7 @@ export default function Decks() {
         const newDeckRef = await addDoc(collection(userDocRef, 'decks'), {
             name: `Untitled Deck`,
         });
-    
 
-    
         const newDeck = {
             id: newDeckRef.id,
             name: `Untitled Deck`,
@@ -269,8 +262,6 @@ export default function Decks() {
         }
     };
     
-    
-
     const handleCardNameClick = (card) => {
         setSelectedCard(card);
         setOpenDialog(true);
@@ -393,7 +384,7 @@ export default function Decks() {
                                 <Button className="new-deck-button" variant="contained" onClick={createNewDeck}>New Deck</Button>
                             </div>
                             <Grid container spacing={2}>
-                                {decks.sort((a, b) => a.id - b.id).map(deck => (
+                                {decks.sort((a, b) => a.name - b.name).map(deck => (
                                     <Grid key={deck.id} item xs={12} sm={4}>
                                         <Box className="deck-box" p={2}>
                                             <div>
@@ -446,7 +437,7 @@ export default function Decks() {
                 )}
                 <Grid item xs={12} sm={5} style={{display: !showDeck ? 'block' : 'none'}}>                    
                     <Box className="selected-cards-box" p={2} >
-                        <Box className="selected-cards-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px' }}>
+                        <Box className="selected-cards-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 2fr)', gap: '10px' }}>
                             {/* Column for Creature */}
                             <Box className="selected-card-column creature-column">
                                 <Typography variant="h6" className="column-title">Creature</Typography>
@@ -463,7 +454,6 @@ export default function Decks() {
                                     ))}
                                 </div>
                             </Box>
-
                             {/* Column for Instant */}
                             <Box className="selected-card-column instant-column">
                                 <Typography variant="h6" className="column-title">Instant</Typography>
@@ -480,7 +470,6 @@ export default function Decks() {
                                     ))}
                                 </div>
                             </Box>
-
                             {/* Column for Sorcery */}
                             <Box className="selected-card-column sorcery-column">
                                 <Typography variant="h6" className="column-title">Sorcery</Typography>
@@ -497,7 +486,6 @@ export default function Decks() {
                                     ))}
                                 </div>
                             </Box>
-
                             {/* Column for Artifact */}
                             <Box className="selected-card-column artifact-column">
                                 <Typography variant="h6" className="column-title">Artifact</Typography>
@@ -514,7 +502,6 @@ export default function Decks() {
                                     ))}
                                 </div>
                             </Box>
-
                             {/* Column for Enchantment */}
                             <Box className="selected-card-column enchantment-column">
                                 <Typography variant="h6" className="column-title">Enchantment</Typography>
@@ -531,7 +518,6 @@ export default function Decks() {
                                     ))}
                                 </div>
                             </Box>
-
                             {/* Column for Land */}
                             <Box className="selected-card-column land-column">
                                 <Typography variant="h6" className="column-title">Land</Typography>
@@ -548,7 +534,6 @@ export default function Decks() {
                                     ))}
                                 </div>
                             </Box>
-
                             {/* Column for Other */}
                             <Box className="selected-card-column other-column">
                                 <Typography variant="h6" className="column-title">Other</Typography>
@@ -594,7 +579,4 @@ export default function Decks() {
                 </DialogActions>
             </Dialog>
         </Container>
-    );
-    
-    
-}
+    );}

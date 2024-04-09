@@ -47,17 +47,19 @@ export default function Home() {
             .then(response => {
                 const commanderData = response.data;
                 // Check if the card has multiple faces
-                if (commanderData.card_faces && commanderData.card_faces.length > 0) {
-                    // For dual-faced cards, set the random commander data to the first face
-                    setRandomCommander(commanderData.card_faces[0]);
-                } else {
+                if (!commanderData.card_faces || commanderData.card_faces.length === 0) {
+                    // For cards with one face, set the random commander data
                     setRandomCommander(commanderData);
+                } else {
+                    // For cards with multiple faces, fetch another random commander
+                    fetchRandomCommander();
                 }
             })
             .catch(error => {
                 console.error('Error fetching random commander:', error);
             });
     };
+    
 
     return (
         <Container maxWidth="lg">
