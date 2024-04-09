@@ -1,4 +1,3 @@
-/* LifeCounter.css */
 .life-counter {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

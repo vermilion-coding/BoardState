@@ -12,7 +12,7 @@ import { getFirestore } from 'firebase/firestore';
 import LifeCounter from './pages/LifeCounter';
 
 
-// Your web app's Firebase configuration
+//Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAX2r7IuECjE2NFcqltnJYTXjJxkgm9HDA",
   authDomain: "boardstate-auth.firebaseapp.com",
@@ -25,7 +25,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 document.title = "BoardState"
 
 export default function App() {

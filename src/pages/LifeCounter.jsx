@@ -4,6 +4,7 @@ import './LifeCounter.css';
 
 const LifeCounter = () => {
 
+  //Image displayed when a user's life total hits 0
   const skullImage = 'https://images.wallpapersden.com/image/download/golden-skull_bGVtaWmUmZqaraWkpJRobWllrWdma2U.jpg';
 
   const [players, setPlayers] = useState([
@@ -13,12 +14,7 @@ const LifeCounter = () => {
     { name: 'Player 4', lifeTotal: 20, commanderDamage: 0, poisonCounters: 0, removed: false },
   ]);
 
-  const handleNameChange = (index, value) => {
-    const updatedPlayers = [...players];
-    updatedPlayers[index].name = value;
-    setPlayers(updatedPlayers);
-  };
-
+  //Changes to life total
   const handleLifeTotalChange = (index, value) => {
     const updatedPlayers = [...players];
     updatedPlayers[index].lifeTotal = value;
@@ -28,24 +24,20 @@ const LifeCounter = () => {
     setPlayers(updatedPlayers);
   };
 
+  //Changes to commander damage
   const handleCommanderDamageChange = (index, value) => {
     const updatedPlayers = [...players];
     updatedPlayers[index].commanderDamage = value;
     setPlayers(updatedPlayers);
   };
 
+  //Changes to poison counters
   const handlePoisonCountersChange = (index, value) => {
     const updatedPlayers = [...players];
     updatedPlayers[index].poisonCounters = value;
     if (value >= 10) {
       updatedPlayers[index].removed = true;
     }
-    setPlayers(updatedPlayers);
-  };
-
-  const handleRotate = (index) => {
-    const updatedPlayers = [...players];
-    updatedPlayers[index].rotate = !updatedPlayers[index].rotate;
     setPlayers(updatedPlayers);
   };
 
@@ -74,7 +66,6 @@ const LifeCounter = () => {
                 <button onClick={() => handlePoisonCountersChange(index, player.poisonCounters + 1)}>+</button>
               </div>
             </div>
-            <button onClick={() => handleRotate(index)}>Rotate</button>
           </div>
           {player.removed && <img className="skull" src={skullImage} alt="Skull" />}
         </div>

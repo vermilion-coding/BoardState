@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize useHistory
-
+  const navigate = useNavigate();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -18,6 +17,7 @@ const LoginPage = () => {
     setPassword(event.target.value);
   };
 
+  //Verifies login with Firebase Auth
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -66,4 +66,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

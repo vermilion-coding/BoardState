@@ -16,6 +16,7 @@ export default function Decks() {
     const [showDeck, setShowDeck] = useState(true);
     const [db, setDb] = useState(null); // Firestore instance
     
+    //Initialize Firestore and Auth
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -29,12 +30,11 @@ export default function Decks() {
             initializeFirestore();
         }
     
-        // Clean up the effect to avoid re-initializing Firestore unnecessarily
         return () => {
-            // Do nothing
         };
     }, []);
 
+    //Listener for searching
     useEffect(() => {
         if (searchQuery.trim() !== '') {
             axios.get(`https://api.scryfall.com/cards/search?q=${searchQuery}&limit=10&order=name`)
@@ -50,6 +50,7 @@ export default function Decks() {
         }
     }, [searchQuery]);
 
+    //Selects a deck when Edit is pressed
     const selectDeck = async (deckId) => {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -63,7 +64,8 @@ export default function Decks() {
                 console.error('Firestore instance not available');
                 return;
             }
-    
+
+            //Pulls user document and corresponding deck document
             const userDocRef = doc(db, 'users', user.uid);
             const deckDocRef = doc(userDocRef, 'decks', deckId);
     
@@ -72,9 +74,11 @@ export default function Decks() {
                 console.error('Deck not found');
                 return;
             }
-    
+            
+            //Sets current deck to a snapshot of the Firestore document
             setCurrentDeck({ id: deckSnapshot.id, ...deckSnapshot.data() });
-    
+            
+            //Pulls the cards collection and returns all cards and corresponding information fields
             const cardsCollectionRef = collection(userDocRef, 'decks', deckId, 'cards');
             const unsubscribe = onSnapshot(cardsCollectionRef, (snapshot) => {
                 const selectedCards = snapshot.docs.map(cardDoc => {
@@ -105,10 +109,12 @@ export default function Decks() {
                 console.error('Firestore instance not available or user not logged in');
                 return;
             }
-    
+            
+            //Pulls user document and corresponding deck document
             const userDocRef = doc(db, 'users', user.uid);
             const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
     
+            //Pulls cards collections
             const selectedCardsRef = collection(deckRef, 'cards');
             const cardDocRef = doc(selectedCardsRef, card.id);
     
@@ -165,13 +171,17 @@ export default function Decks() {
                 return;
             }
     
+            //Pulls user document and corresponding deck document
             const userDocRef = doc(db, 'users', user.uid);
             const deckRef = doc(collection(userDocRef, 'decks'), currentDeck.id);
-    
+
+            //Pulls cards collection
             const selectedCardsRef = collection(deckRef, 'cards');
             const cardDoc = doc(selectedCardsRef, cardId);
     
             const cardDocSnapshot = await getDoc(cardDoc);
+            
+            //Checks if card exists and checks counters for deletion
             if (cardDocSnapshot.exists()) {
                 const currentCount = cardDocSnapshot.data().counters;
                 if (currentCount > 1) {
@@ -193,36 +203,29 @@ export default function Decks() {
         const auth = getAuth();
         const user = auth.currentUser;
     
-        if (!user) {
-            // User not logged in, handle this case accordingly
-            return;
-        }
-    
-        const db = getFirestore(); // Assuming Firestore instance is initialized somewhere
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnapshot = await getDoc(userDocRef);
-    
-        if (!userDocSnapshot.exists()) {
-            // User document does not exist, handle this case accordingly
-            return;
-        }
-    
+        const db = getFirestore();
+        const userDocRef = doc(db, 'users', user.uid);    
+
+        //Adds reference for new deck in decks collection
         const newDeckRef = await addDoc(collection(userDocRef, 'decks'), {
             name: `Untitled Deck`,
         });
 
+        //Sets new deck object with corresponding deck ID from Firestore
         const newDeck = {
             id: newDeckRef.id,
             name: `Untitled Deck`,
         };
     
+        //Updates states
         const updatedDecks = [...decks, newDeck];
         setDecks(updatedDecks);
         setCurrentDeck(newDeck);
     };
       
-
     const deleteDeck = async (deckId) => {
+
+        //Updates states
         const updatedDecks = decks.filter(deck => deck.id !== deckId);
         setDecks(updatedDecks);
         setCurrentDeck(null);
@@ -239,7 +242,6 @@ export default function Decks() {
         }
     };
     
-
     const renameDeck = async (deckId, db) => {
         const newName = prompt("Enter a new name for the deck:", decks.find(deck => deck.id === deckId).name);
         if (newName !== null) {
@@ -261,16 +263,19 @@ export default function Decks() {
             }
         }
     };
-    
+
+    //Opens image dialog box
     const handleCardNameClick = (card) => {
         setSelectedCard(card);
         setOpenDialog(true);
     };
 
+    //Closes image dialog box
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
 
+    //Exports deck to .txt file
     const exportDeck = async (deckId) => {
         try {
             const db = getFirestore();
@@ -317,12 +322,14 @@ export default function Decks() {
         }
     };
 
+    //Changes states to navigate back to decks page
     const handleBackButtonClick = () => {
         setShowDeck(true);
         setCurrentDeck(null);
         setSelectedCards([]);
     };
 
+    //Listener for deck changes to fetch new information
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -353,7 +360,7 @@ export default function Decks() {
                 return {
                     id: doc.id,
                     ...deckData,
-                    cards: cards // Include the fetched cards in the deck object
+                    cards: cards
                 };
             }));
     
@@ -367,8 +374,7 @@ export default function Decks() {
         const unsubscribe = onSnapshot(userDocRef, () => {
             fetchDecks();
         });
-    
-        // Cleanup function
+
         return () => unsubscribe();
     }, [db]);
     
@@ -406,7 +412,8 @@ export default function Decks() {
                     <Grid item xs={12} sm={12}>
                         <Box className="current-deck-box" p={2} style={{ position: 'relative' }}>
                             <Button variant="contained" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={handleBackButtonClick}>Back</Button>
-                            <Box className="search-results-box" p={2} style={{position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)', width: '50%', maxWidth: '500px', display: searchResults.length > 0 ? 'block' : 'none', backgroundColor: 'rgba(255, 255, 255)', borderRadius: '10px', padding: '10px', zIndex: 1}}>                                <Box className="search-results-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                            <Box className="search-results-box" p={2} style={{position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)', width: '50%', maxWidth: '500px', display: searchResults.length > 0 ? 'block' : 'none', backgroundColor: 'rgba(255, 255, 255)', borderRadius: '10px', padding: '10px', zIndex: 1}}> 
+                                <Box className="search-results-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                                     {searchResults.map(card => (
                                         <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
                                             <Typography style={{color: 'black'}}>{card.name}</Typography>
@@ -425,8 +432,8 @@ export default function Decks() {
                                 InputProps={{
                                     style: {
                                         color: 'white',
-                                        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white
-                                        borderRadius: '2vw', // Use viewport width for border radius
+                                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                                        borderRadius: '2vw', 
                                         paddingLeft: '2vw',
                                         width: 'calc(100%'
                                     }

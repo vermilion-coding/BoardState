@@ -9,7 +9,8 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(true);
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-    useEffect(() => {
+    //Ensures that cards are only rendered once when visiting the page
+    useEffect(() => { 
         fetchRandomCard();
         fetchRandomCommander();
         const intervalId = setInterval(() => {
@@ -17,7 +18,7 @@ export default function Home() {
         }, 1000);
 
         return () => clearInterval(intervalId);
-    }, []); // Empty dependency array ensures this effect runs only once on mount
+    }, []); 
 
     const fetchRandomCard = () => {
         // Fetch random card from Scryfall API
@@ -28,7 +29,7 @@ export default function Home() {
                 // Check if the card has multiple faces
                 if (cardData.card_faces && cardData.card_faces.length > 0) {
                     // For dual-faced cards, set the random card data to the first face
-                    setRandomCard(cardData.card_faces[0]); //DISPLAY BOTH
+                    setRandomCard(cardData.card_faces[0]);
                 } else {
                     setRandomCard(cardData);
                 }
@@ -60,7 +61,6 @@ export default function Home() {
             });
     };
     
-
     return (
         <Container maxWidth="lg">
             <Typography align='center' variant="h2" gutterBottom className="welcome">Welcome to BoardState!</Typography>
@@ -88,6 +88,4 @@ export default function Home() {
                 </Grid>
             </Grid>
         </Container>
-    );
-    
-}
+    );}

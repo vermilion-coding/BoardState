@@ -8,16 +8,16 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #333333; /* Set background color for the body */
-    background-image: url('https://wallpapercave.com/wp/wp3354900.jpg'); /* Set background image */
-    background-size: cover; /* Cover the entire background */
-    background-repeat: no-repeat; /* Do not repeat the background image */
-    width: 100vw; /* Full width of the viewport */
-    height: 100vh; /* Full height of the viewport */
+    background-color: #333333;
+    background-image: url('https://wallpapercave.com/wp/wp3354900.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh;
 }
 
 /* Center the content in the container */
 .container {
-    margin: 1rem auto; /* Use auto for horizontal margin to center the container */
+    margin: 1rem auto;
     text-align: center;
 }

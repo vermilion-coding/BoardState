@@ -1,15 +1,12 @@
-
-
 .nav {
-  color: black; /* Slightly transparent text color */
+  color: black;
   padding: 10px 20px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  backdrop-filter: blur(10px); /* Apply a blur effect to the background */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Add a shadow */
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
 }
-
 
 .site-title {
   font-size: 1.9rem;
@@ -23,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 40px;
-  background-color: transparent; /* Transparent background */
+  background-color: transparent;
   font-size: 1.1rem;
 
 }
@@ -42,7 +39,7 @@
 .nav-link.active,
 .nav-item:hover,
 .nav-item.active {
-  background-color: rgba(143, 143, 143, 0.9); /* Semi-transparent background on hover */
+  background-color: rgba(143, 143, 143, 0.9);
 }
 
 .nav-link:hover,

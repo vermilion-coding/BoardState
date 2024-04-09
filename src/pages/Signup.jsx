@@ -11,14 +11,17 @@ const SignUpPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  //Handles setting a new user's email
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
 
+  //Handles setting a new user's password
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
 
+  //Password confirmation
   const handleConfirmPasswordChange = (event) => {
     setConfirmPassword(event.target.value);
   };
@@ -44,9 +47,6 @@ const SignUpPage = () => {
         const decksCollectionRef = collection(userRef, 'decks');
         await addDoc(decksCollectionRef, { placeholder: 'placeholder' }); // Example field, add your desired data here
 
-        const collectionsCollectionRef = collection(userRef, 'collections');
-        await addDoc(collectionsCollectionRef, {placeholder: 'placeholder'});
-
         // Show success message and redirect to home page
         alert('Sign up successful!');
         navigate('/');
@@ -54,8 +54,6 @@ const SignUpPage = () => {
         setError(error.message);
     }
 };
-
-
   return (
     <Grid container justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
       <Grid item xs={10} sm={8} md={6} lg={4}>
