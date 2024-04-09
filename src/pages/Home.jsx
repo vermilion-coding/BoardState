@@ -64,10 +64,6 @@ export default function Home() {
             <Typography align='center' variant="h2" gutterBottom className="welcome">Welcome to BoardState!</Typography>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
-                    <Box className="date-time-box">
-                        <Typography variant="h4" gutterBottom>Current Time and Date</Typography>
-                        <Typography variant="h5" gutterBottom>{currentDateTime.toLocaleString()}</Typography>
-                    </Box>
                     <Box className="random-card-box">
                         {isLoading && <Typography>Loading...</Typography>}
                         {randomCard && !isLoading && (

@@ -37,16 +37,41 @@
     background-color: #0044cc; /* Darker background color on hover */
 }
 
-.deck-box {
-    margin-bottom: 1vw; /* Use viewport width for margin bottom */
-    padding: 1vw; /* Use viewport width for padding */
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Define column width and make them stack if necessary */
-    gap: 10px; /* Add gap between columns */
-    border: 1px solid #ccc; /* Define border */
-    border-radius: 1vw; /* Use viewport width for border radius */
-    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+.parent {
+    width: 50%; /* Set the width of the parent element */
+    height: 50%; /* Set the height of the parent element */
+    border: 1px solid #ccc;
+    padding: 1vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.deck-box {
+    width: 100%; /* Set the width of the box relative to the parent */
+    height: 80%; /* Set the height of the box relative to the parent */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 1vw;
+    background-color: rgba(255, 255, 255, 0.1);
+    font-size: 1.2vw;
+
+    /* Additional styles for consistent sizing */
+    box-sizing: border-box;
+}
+
+/* Media query to adjust font size for smaller screens */
+@media screen and (max-width: 600px) {
+    .deck-box {
+        font-size: 14px;
+    }
+}
+
+
+
+
 
 .deck-box > div {
     padding: 1vw; /* Use viewport width for padding */
@@ -111,32 +136,79 @@
     max-height: calc(100vh - 64px); /* Subtract any header/footer height */
     overflow-y: auto; /* Enable vertical scrolling */
     padding: 16px; /* Padding around the box */
+    width: calc(100vw - 64px);
 }
 
 .selected-cards-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Grid layout with minimum column width of 200px */
-    gap: 10px; /* Gap between grid items */
-    overflow: hidden; /* Hide any overflowing content */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Fill the view and move to next row if needed */
+    gap: 10px;
+    overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 .selected-card-column {
-    white-space: normal; /* Reset white-space */
+    white-space: normal;
+    border: 1px solid lightgray;
+    text-align: center;
+    max-height: 100%; /* Set a max-height for scroll */
+    overflow-y: auto; /* Add vertical scrollbar */
+    position: relative; /* Set position relative */
 }
 
-/* Adjust the max-width as needed */
+.column-title {
+    position: sticky; /* Make the title sticky */
+    top: 0; /* Stick to the top */
+    background-color: black; /* Optional: Add a background color */
+    z-index: 1; /* Ensure title is above content */
+    padding: 5px; /* Add padding for spacing */
+}
+
+.column-content {
+    padding-top: 30px; /* Add padding to content to accommodate the sticky title */
+}
+
+.selected-card-column Typography {
+    text-decoration: underline;
+}
+
+
 .selected-card-item {
-    max-width: 400px; /* Maximum width for each card item */
-    word-wrap: break-word; /* Allow long words to wrap */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid lightgray;
+    padding: 5px;
+    max-width: 100%; /* Set a max-width */
 }
 
-
-
-.selected-card-column:first-child {
-    border-left: 1px solid #ccc; /* Left border for the first column */
+.selected-card-item > * {
+    margin-right: 10px;
 }
 
+.selected-card-item button {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    border: 1px solid lightgray;
+}
 
+.selected-card-item Typography {
+    color: white;
+}
+
+.selected-card-item .counters {
+    border: 1px solid white; /* Add a blue border */
+    color: white;
+    background-color: #1976d2; /* Set a light blue background color */
+    padding: 3px;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    border: 1px solid lightgray;
+}
 
 
 
