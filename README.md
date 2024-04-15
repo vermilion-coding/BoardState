@@ -1,41 +1,127 @@
-# BoardState
 
-BoardState is a React.js application for creating and storing Magic: the Gathering decks.
+<h1 align="center">
+  <br>
+  <a><img src="https://raw.githubusercontent.com/vermilion-coding/BoardState/src/assets/boardstate-logo.png" alt="BoardState logo" width="200"></a>
+  <br>
+  Markdownify
+  <br>
+</h1>
 
-## Features
+<h4 align="center">A minimal Markdown Editor desktop app built on top of <a href="http://electron.atom.io" target="_blank">Electron</a>.</h4>
 
-- **Authentication:** Users can create accounts and log in to access their decks.
-- **Deck Creation:** Users can create new decks, add cards to decks, and manage their decks.
-- **Deck Storage:** Decks are stored securely and can be accessed from any device.
-- **Search:** Users can search for Magic: the Gathering cards and add them to their decks.
+<p align="center">
+  <a href="https://badge.fury.io/js/electron-markdownify">
+    <img src="https://badge.fury.io/js/electron-markdownify.svg"
+         alt="Gitter">
+  </a>
+  <a href="https://gitter.im/amitmerchant1990/electron-markdownify"><img src="https://badges.gitter.im/amitmerchant1990/electron-markdownify.svg"></a>
+  <a href="https://saythanks.io/to/bullredeyes@gmail.com">
+      <img src="https://img.shields.io/badge/SayThanks.io-%E2%98%BC-1EAEDB.svg">
+  </a>
+  <a href="https://www.paypal.me/AmitMerchant">
+    <img src="https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&amp;style=flat">
+  </a>
+</p>
 
-## Technologies Used
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#download">Download</a> •
+  <a href="#credits">Credits</a> •
+  <a href="#related">Related</a> •
+  <a href="#license">License</a>
+</p>
 
-- **React.js:** Frontend library for building user interfaces.
-- **Firebase:** Backend service for authentication and data storage.
-- **Material-UI:** UI framework for styling and components.
-- **Scryfall API:** API for fetching Magic: the Gathering card data.
+![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
 
-## Getting Started
+## Key Features
 
-To run the BoardState application locally, follow these steps:
+* LivePreview - Make changes, See changes
+  - Instantly see what your Markdown documents look like in HTML as you create them.
+* Sync Scrolling
+  - While you type, LivePreview will automatically scroll to the current location you're editing.
+* GitHub Flavored Markdown  
+* Syntax highlighting
+* [KaTeX](https://khan.github.io/KaTeX/) Support
+* Dark/Light mode
+* Toolbar for basic Markdown formatting
+* Supports multiple cursors
+* Save the Markdown preview as PDF
+* Emoji support in preview :tada:
+* App will keep alive in tray for quick usage
+* Full screen mode
+  - Write distraction free.
+* Cross platform
+  - Windows, macOS and Linux ready.
 
-1. Clone the repository: `git clone https://github.com/your-username/boardstate.git`
-2. Install dependencies: `cd boardstate && npm install`
-3. Start the development server: `npm start`
-4. Open your browser and navigate to `http://localhost:3000`
+## How To Use
 
-## Usage
+To clone and run this application, you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
 
-1. **Login:** If you have an account, log in with your credentials. Otherwise, sign up for a new account.
-3. **Create Deck:** Click on the "Decks" tab to start creating a new deck. Add cards to your deck by searching for them and selecting the desired quantity.
-4. **View Deck:** Click on a deck to view its details, including card the list and options to edit or delete the deck.
-5. **Search Cards:** Use the search feature to find Magic: the Gathering cards by name. Add cards to your deck by clicking the "add" button next to the card.
+```bash
+# Clone this repository
+$ git clone https://github.com/amitmerchant1990/electron-markdownify
 
-## Contributing
+# Go into the repository
+$ cd electron-markdownify
 
-Contributions are welcome! If you have ideas for new features, improvements, or bug fixes, please open an issue or submit a pull request.
+# Install dependencies
+$ npm install
+
+# Run the app
+$ npm start
+```
+
+> **Note**
+> If you're using Linux Bash for Windows, [see this guide](https://www.howtogeek.com/261575/how-to-run-graphical-linux-desktop-applications-from-windows-10s-bash-shell/) or use `node` from the command prompt.
+
+
+## Download
+
+You can [download](https://github.com/amitmerchant1990/electron-markdownify/releases/tag/v1.2.0) the latest installable version of Markdownify for Windows, macOS and Linux.
+
+## Emailware
+
+Markdownify is an [emailware](https://en.wiktionary.org/wiki/emailware). Meaning, if you liked using this app or it has helped you in any way, I'd like you send me an email at <bullredeyes@gmail.com> about anything you'd want to say about this software. I'd really appreciate it!
+
+## Credits
+
+This software uses the following open source packages:
+
+- [Electron](http://electron.atom.io/)
+- [Node.js](https://nodejs.org/)
+- [Marked - a markdown parser](https://github.com/chjj/marked)
+- [showdown](http://showdownjs.github.io/showdown/)
+- [CodeMirror](http://codemirror.net/)
+- Emojis are taken from [here](https://github.com/arvida/emoji-cheat-sheet.com)
+- [highlight.js](https://highlightjs.org/)
+
+## Related
+
+[markdownify-web](https://github.com/amitmerchant1990/markdownify-web) - Web version of Markdownify
+
+## Support
+
+<a href="https://www.buymeacoffee.com/5Zn8Xh3l9" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
+<p>Or</p> 
+
+<a href="https://www.patreon.com/amitmerchant">
+	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
+</a>
+
+## You may also like...
+
+- [Pomolectron](https://github.com/amitmerchant1990/pomolectron) - A pomodoro app
+- [Correo](https://github.com/amitmerchant1990/correo) - A menubar/taskbar Gmail App for Windows and macOS
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+MIT
+
+---
+
+> [amitmerchant.com](https://www.amitmerchant.com) &nbsp;&middot;&nbsp;
+> GitHub [@amitmerchant1990](https://github.com/amitmerchant1990) &nbsp;&middot;&nbsp;
+> Twitter [@amit_merchant](https://twitter.com/amit_merchant)
+
