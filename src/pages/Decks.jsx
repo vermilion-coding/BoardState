@@ -355,8 +355,16 @@ export default function Decks() {
     
                 // Query the cards collection for each deck
                 const cardsSnapshot = await getDocs(collection(userDecksRef, doc.id, 'cards'));
-                const cards = cardsSnapshot.docs.map(cardDoc => cardDoc.data());
-    
+                const cards = cardsSnapshot.docs.map(cardDoc => {
+                    const cardData = cardDoc.data();
+                    const imageURL = cardData.image_uris?.normal; // Get the image URL from Firebase
+        
+                    return {
+                        id: cardDoc.id,
+                        ...cardData,
+                        imageURL: imageURL
+                    };
+                });    
                 return {
                     id: doc.id,
                     ...deckData,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Box, Card, CardContent, Grid } from '@mui/material';
+import { Container, Typography, Box, Grid } from '@mui/material';
 import axios from 'axios';
 import './Home.css';
 
@@ -7,17 +7,11 @@ export default function Home() {
     const [randomCard, setRandomCard] = useState(null);
     const [randomCommander, setRandomCommander] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
     //Ensures that cards are only rendered once when visiting the page
     useEffect(() => { 
         fetchRandomCard();
         fetchRandomCommander();
-        const intervalId = setInterval(() => {
-            setCurrentDateTime(new Date());
-        }, 1000);
-
-        return () => clearInterval(intervalId);
     }, []); 
 
     const fetchRandomCard = () => {
