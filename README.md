@@ -1,41 +1,42 @@
-# BoardState
 
-BoardState is a React.js application for creating and storing Magic: the Gathering decks.
+<h1 align="center">
+  <br>
+  <a><img src="https://github.com/vermilion-coding/BoardState/blob/main/src/assets/boardstate-logo.png" alt="BoardState logo" width="200"></a>
+  <br>
+  BoardState
+  <br>
+</h1>
 
-## Features
+<h4 align="center">A minimal Magic: the Gathering web app built using <a href="https://react.dev/" target="_blank">React</a>.</h4>
 
-- **Authentication:** Users can create accounts and log in to access their decks.
-- **Deck Creation:** Users can create new decks, add cards to decks, and manage their decks.
-- **Deck Storage:** Decks are stored securely and can be accessed from any device.
-- **Search:** Users can search for Magic: the Gathering cards and add them to their decks.
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#license">License</a>
+</p>
 
-## Technologies Used
+## Key Features
 
-- **React.js:** Frontend library for building user interfaces.
-- **Firebase:** Backend service for authentication and data storage.
-- **Material-UI:** UI framework for styling and components.
-- **Scryfall API:** API for fetching Magic: the Gathering card data.
+* Scryfall searching
+  - Search for cards using the powerful <a href="https://scryfall.com/docs/api" target="_blank">Scryfall API</a>
+* Account creation
+  - Make an account to store and access your decks from anywhere
+* Life tracker
+  - Use the built-in life tracker to keep track of life totals during games of Magic
+* Simple and intuitive UI
 
-## Getting Started
 
-To run the BoardState application locally, follow these steps:
+## How To Use
 
-1. Clone the repository: `git clone https://github.com/your-username/boardstate.git`
-2. Install dependencies: `cd boardstate && npm install`
-3. Start the development server: `npm start`
-4. Open your browser and navigate to `http://localhost:3000`
-
-## Usage
-
-1. **Login:** If you have an account, log in with your credentials. Otherwise, sign up for a new account.
-3. **Create Deck:** Click on the "Decks" tab to start creating a new deck. Add cards to your deck by searching for them and selecting the desired quantity.
-4. **View Deck:** Click on a deck to view its details, including card the list and options to edit or delete the deck.
-5. **Search Cards:** Use the search feature to find Magic: the Gathering cards by name. Add cards to your deck by clicking the "add" button next to the card.
-
-## Contributing
-
-Contributions are welcome! If you have ideas for new features, improvements, or bug fixes, please open an issue or submit a pull request.
+Navigate to ADD LINK HERE WHEN HOSTED
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+MIT
+
+---
+
+> [amitmerchant.com](https://www.amitmerchant.com) &nbsp;&middot;&nbsp;
+> GitHub [@amitmerchant1990](https://github.com/amitmerchant1990) &nbsp;&middot;&nbsp;
+> Twitter [@amit_merchant](https://twitter.com/amit_merchant)
+

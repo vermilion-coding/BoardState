@@ -457,7 +457,7 @@ export default function Decks() {
                             <Box className="selected-card-column creature-column">
                                 <Typography variant="h6" className="column-title">Creature</Typography>
                                 <div className="column-content">
-                                    {selectedCards.filter(card => card.type_line.includes("Creature")).map((card, index) => (
+                                    {selectedCards.filter(card => card.type_line.includes("Creature") || card.type_line.includes("Artifact Creature") || card.type_line.includes("Enchantment Creature")).map((card, index) => (
                                         <Box key={index} className="selected-card-item">
                                             <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                             <div>
@@ -505,7 +505,7 @@ export default function Decks() {
                             <Box className="selected-card-column artifact-column">
                                 <Typography variant="h6" className="column-title">Artifact</Typography>
                                 <div className="column-content">
-                                    {selectedCards.filter(card => card.type_line.includes("Artifact")).map((card, index) => (
+                                    {selectedCards.filter(card => card.type_line.includes("Artifact") && !card.type_line.includes("Artifact Creature")).map((card, index) => (
                                         <Box key={index} className="selected-card-item">
                                             <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                             <div>
@@ -521,7 +521,7 @@ export default function Decks() {
                             <Box className="selected-card-column enchantment-column">
                                 <Typography variant="h6" className="column-title">Enchantment</Typography>
                                 <div className="column-content">
-                                    {selectedCards.filter(card => card.type_line.includes("Enchantment")).map((card, index) => (
+                                    {selectedCards.filter(card => card.type_line.includes("Enchantment") && !card.type_line.includes("Enchantment Creature")).map((card, index) => (
                                         <Box key={index} className="selected-card-item">
                                             <Typography onClick={() => handleCardNameClick(card)} style={{ cursor: 'pointer' }}>{card.name}</Typography>
                                             <div>
