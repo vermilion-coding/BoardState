@@ -394,7 +394,7 @@ export default function Decks() {
                     <Grid item xs={12}>
                         <Box className="deck-container" p={2}>
                             <div className="welcome-section">
-                                <Typography variant="h5" align="center" gutterBottom>Welcome to the Deck Builder!</Typography>
+                                <Typography variant="h4" align="center" gutterBottom>Welcome to the Deck Builder!</Typography>
                                 <Button className="new-deck-button" variant="contained" onClick={createNewDeck}>New Deck</Button>
                             </div>
                             <Grid container spacing={2}>
@@ -420,11 +420,11 @@ export default function Decks() {
                     <Grid item xs={12} sm={12}>
                         <Box className="current-deck-box" p={2} style={{ position: 'relative' }}>
                             <Button variant="contained" style={{ borderRadius: '10px', fontSize: "18px"}} onClick={handleBackButtonClick}>Back</Button>
-                            <Box className="search-results-box" p={2} style={{position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)', width: '50%', maxWidth: '500px', display: searchResults.length > 0 ? 'block' : 'none', backgroundColor: 'rgba(255, 255, 255)', borderRadius: '10px', padding: '10px', zIndex: 1}}> 
+                            <Box className="search-results-box" p={2} style={{position: 'absolute', top: 'calc(100% + 10px)', left: '50%', transform: 'translateX(-50%)', width: '50%', maxWidth: '500px', display: searchResults.length > 0 ? 'block' : 'none', borderRadius: '10px', padding: '10px', zIndex: 1}}> 
                                 <Box className="search-results-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                                     {searchResults.map(card => (
                                         <Box key={card.id} className="search-result-item" display="flex" alignItems="center" justifyContent="space-between" my={1} p={1} onClick={(e) => { if (!e.target.closest('button')) handleCardNameClick(card) }}>
-                                            <Typography style={{color: 'black'}}>{card.name}</Typography>
+                                            <Typography style={{color: 'white'}}>{card.name}</Typography>
                                             <Button variant="contained" size="small" style={{ borderRadius: '10px', fontSize: "14px"}} onClick={(e) => { e.stopPropagation(); addCardToSelected(card) }}>Add</Button>
                                         </Box>
                                     ))}
